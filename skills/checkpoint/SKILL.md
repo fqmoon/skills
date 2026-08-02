@@ -1,8 +1,10 @@
 ---
 name: checkpoint
 version: 3
-description: 从当前会话中搜索所有可能的 CHECKPOINT 条目，并追加到指定的 Markdown 文档。
-allow_implicit_invocation: false
+description: 将会话中尚未闭环的事项，以及继续处理这些事项所依赖的决策、约束和事实，记录成文档。
+disable-model-invocation: true
+metadata:
+  opencode/autoinvoke: "false"
 ---
 
 用途
