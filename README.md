@@ -3,7 +3,3 @@
 
 安装
 - `npx skills add https://github.com/fqmoon/skills`
-
-包含skill
-- qt
-  - 重组问题，以找到真正的问题
