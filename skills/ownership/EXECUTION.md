@@ -75,10 +75,16 @@ FAIL
 - 自行决定局部实现；
 - 只修改自己的 ownership；
 - 优先保证本模块的静态语义、类型、API、ownership 和内部调用合理；
+- 可以基于自己的局部需求提出 exported contract 与 required contract；
+- contract 尚未确定时，可以基于明确 assumptions 完成局部实现；
 - 不为了 repository-wide build 或 test 通过而越界修改其他模块；
 - 不为了兼容尚未整合的其他 ownership 而增加无必要兼容层；
 - 不提前与其他 worker 协调具体实现；
 - 不解决尚未真实发生的跨模块冲突。
+
+不同 worker 最终形成的 contract 不一致，不视为 worker 失败。
+
+这些不一致应保留给 Integration 阶段判断。
 
 允许执行不会导致 ownership 外溢的：
 
@@ -109,6 +115,7 @@ Worktree:
 Execution Rules:
 - 只修改 Ownership 范围。
 - 自行调查局部上下文并决定实现。
+- Contract 未确定时，可以提出或假设局部所需 contract，并在结果中记录。
 - 不为了 repository-wide build/test 越界修改。
 - 不提前处理尚未发生的跨 ownership 冲突。
 - 完成后写 WORKER_RESULT.md。
@@ -132,8 +139,14 @@ WORKER_RESULT.md
 ## Changed
 - 修改范围，1～3 条
 
-## Contract
-- 对外 API / contract 变化；没有则写 None
+## Exported Contract
+- 本 ownership 对外提供的 API / contract；没有则写 None
+
+## Required Contract
+- 本 ownership 需要其他 ownership 提供的 API / contract；没有则写 None
+
+## Assumptions
+- 为完成局部实现采用的跨 ownership 假设；没有则写 None
 
 ## Decisions
 - 关键局部决策，最多 3 条
@@ -199,7 +212,8 @@ result: WORKER_RESULT.md
 
 - 各 ownership 实际发生的修改；
 - 关键设计决策；
-- contract / API 变化；
+- exported / required contract；
+- contract assumptions；
 - 实际代码层面的不一致；
 - 实际代码层面的冲突；
 - Integration 前需要人工决定的问题。
