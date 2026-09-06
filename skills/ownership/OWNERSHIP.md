@@ -47,11 +47,13 @@ ownership 应优先按照代码责任边界划分，例如：
 
 一个 ownership 应满足：
 
-1. worker 可以独立读取并理解自己的局部上下文；
+1. 有清晰的责任范围；
 2. 有清晰的主要写入范围；
-3. 不需要等待另一个 worker 的具体实现才能开始；
-4. 可以自行决定局部实现；
-5. 出现局部错误时，不需要通过修改其他 ownership 才能完成工作。
+3. 即使不知道其他 ownership 的具体实现细节，也能独立形成有意义的局部修改。
+
+这里要求的是局部自治，不是独立交付。
+
+一个 ownership 不需要单独满足 repository-wide 编译、运行、测试或跨模块兼容。
 
 # 写入边界
 
@@ -79,7 +81,7 @@ B ownership
     ↓ consumes API
 ```
 
-这不自动意味着两个 ownership 不能并行。
+contract 尚未确定，也不自动阻止 ownership 拆分或并行执行。
 
 规划阶段只需要明确：
 
@@ -87,9 +89,21 @@ B ownership
 - 用户已经明确决定的新 contract；
 - 哪些 contract 尚未确定。
 
-不要为了并行执行提前设计完整的跨模块实现。
+不要为了并行执行提前设计完整的跨模块 contract 或实现。
 
-如果某个 worker 必须知道另一个 worker 尚未决定的具体接口后才能工作，则两者不应强行并行。
+对于尚未确定的 contract，worker 可以基于自己的 ownership：
+
+- 提出自己对外提供的 contract；
+- 提出自己需要其他 ownership 提供的 contract；
+- 在必要时基于明确假设完成局部实现。
+
+这些 exported contract、required contract 和 assumptions 都应作为 worker 的执行结果记录下来，供后续 Integration 判断。
+
+不同 worker 独立形成的 contract 不一致，不代表 ownership 拆分失败，也不代表 worker 执行失败。
+
+这种不一致本身就是 Integration 的输入。
+
+只有当一个 worker 无法在脱离另一个 ownership 的具体实现细节时形成有意义的局部修改，才认为两者不适合独立执行。
 
 # Worker Scope
 
@@ -116,7 +130,10 @@ B ownership
 - 多个修改强依赖同一个核心实现；
 - ownership 的写入边界无法明确；
 - worker 必须频繁修改彼此负责的代码；
+- 某个 worker 无法在不知道另一 ownership 具体实现细节的情况下形成有意义的局部修改；
 - 拆分本身比局部实现更复杂；
 - 所谓并行任务只是同一实现步骤的人为切片。
+
+Contract 未确定、API 暂时不一致、repository-wide 暂时不能运行，本身都不是停止拆分的理由。
 
 宁可报告“不适合并行”，也不要为了使用本 Skill 强行制造多个 worker。
