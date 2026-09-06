@@ -1,7 +1,7 @@
 ---
 name: ownership
 version: 1
-description: 将任务按互斥 ownership 拆分，并在独立 Git worktree 与独立执行上下文中并行执行；仅汇总结果，不自动集成。
+description: 将任务按责任边界拆成若干 ownership；只确定责任范围、主要写入边界与跨 ownership 的 contract 关系，不负责执行。
 disable-model-invocation: true
 metadata:
   opencode/autoinvoke: "false"
@@ -9,80 +9,148 @@ metadata:
 
 # 用途
 
-对可以按 ownership 独立处理的任务进行一次性并行执行。
+用于判断一个任务应该如何按责任边界拆成若干 ownership。
 
-每个执行单元必须同时拥有：
+本 Skill 是责任划分方法，不是执行协议。
 
-- 独立 ownership；
-- 独立 Git worktree；
-- 独立执行上下文。
+它不要求先调用 `gate`。只要当前目标与约束已经足够明确，就可以直接使用；这些信息可以来自用户、已有文档、Gate 或其他上下文。
 
-执行完成后，由当前主上下文统一读取真实修改并汇总。
+不要生成详细的 repository-wide 实施 Plan。
 
-本 Skill 只负责：
+# 输入
 
-1. ownership 拆分；
-2. 隔离执行；
-3. 结果汇总。
+至少需要能够判断：
 
-不负责 Integration。
+- Goal：当前任务最终希望改变什么；
+- Constraints：执行过程中不能违反的边界；
+- 当前系统或代码中的责任边界。
 
-本 Skill 不依赖特定 Subagent、Agent、Workflow 或编排插件。
+不要把一般性的实现偏好伪装成硬约束。
 
-# 核心流程
+# Ownership
 
-1. 按 `OWNERSHIP.md` 分析当前任务。
-2. 只确定：
-   - 当前目标；
-   - 必须满足的硬约束；
-   - 可以独立处理的 ownership；
-   - 每个 worker 的负责范围。
-3. 如果不能形成至少两个适合独立执行的 ownership，则停止，并报告当前任务不适合使用本 Skill。
-4. 按 `EXECUTION.md` 检查当前环境的隔离执行能力。
-5. 如果不存在可用的独立上下文执行方式，则停止并报告失败。
-6. 为各 ownership 创建独立 worktree。
-7. 在独立上下文中并行执行各 worker。
-8. 等待本轮全部 worker 完成或失败。
-9. 主上下文读取各 worktree 的：
-   - 实际代码；
-   - Git diff；
-   - commit；
-   - 接口定义；
-   - `WORKER_RESULT.md`。
-10. 主上下文汇总：
-    - 各 ownership 的实际修改；
-    - 关键局部决策；
-    - contract / API 变化；
-    - 实际代码层面的不一致和冲突；
-    - 需要人工判断的问题。
-11. STOP，等待人工介入。
+将任务拆成若干可以独立负责的修改范围。
 
-# Source of Truth
+ownership 应优先按照代码责任边界划分，例如：
 
-`WORKER_RESULT.md` 仅作为快速索引。
+- package；
+- subsystem；
+- library；
+- service；
+- UI component family；
+- storage layer；
+- renderer；
+- protocol layer。
 
-以下内容才是 source of truth：
+不要为了增加 ownership 数量而人为切碎强耦合模块。
 
-1. 实际文件；
-2. Git diff；
-3. 接口定义；
-4. commit。
+一个 ownership 应满足：
 
-如果 `WORKER_RESULT.md` 与真实修改不一致，以真实修改为准。
+1. 有清晰的责任范围；
+2. 有清晰的主要写入范围；
+3. 即使不知道其他 ownership 的具体实现细节，也能独立形成有意义的局部修改。
 
-worker 的返回消息只代表执行状态，不代表执行结果。
+这里要求的是局部自治，不是独立交付。
 
-# 强制停止
+一个 ownership 不需要单独满足 repository-wide 编译、运行、测试或跨模块兼容。
 
-完成汇总后不得：
+# 写入边界
 
-- merge；
-- cherry-pick；
-- rebase；
-- 自动修改其他 worktree；
-- 自动解决跨 ownership 冲突；
-- 自动重新派遣 worker；
-- 自动进入 Integration；
-- 自动执行 repository-wide 修复。
+不同 ownership 的主要写入范围不得重叠。
 
-即使所有修改看起来可以直接整合，也必须停止并等待人工介入。
+读取范围可以重叠。
+
+后续执行者可以读取 repository 中任何理解自己任务所需的代码，但主要修改应限制在自己的 ownership 范围。
+
+如果两个任务必须同时修改同一个核心文件，默认认为它们不具有独立 ownership。
+
+不要通过约定两个执行者修改同一文件的不同代码段来制造虚假的独立性。
+
+# Contract Dependency
+
+允许 ownership 之间存在 contract 依赖。
+
+例如：
+
+```text
+A ownership
+    ↓ exports API
+
+B ownership
+    ↓ consumes API
+```
+
+contract 尚未确定，也不自动阻止 ownership 拆分。
+
+本阶段只需要明确：
+
+- 已存在的 contract；
+- 用户已经明确决定的新 contract；
+- 哪些 contract 尚未确定。
+
+不要为了形成 ownership 提前设计完整的跨模块 contract 或实现。
+
+对于尚未确定的 contract，各 ownership 后续可以基于自己的局部需求：
+
+- 提出自己对外提供的 contract；
+- 提出自己需要其他 ownership 提供的 contract；
+- 在必要时基于明确 assumptions 形成局部实现。
+
+不同 ownership 最终形成的 contract 不一致，不代表 ownership 拆分失败。
+
+这种不一致本身就是后续 Integration 的输入。
+
+只有当一个 ownership 无法在脱离另一个 ownership 的具体实现细节时形成有意义的局部修改，才认为两者不适合独立划分。
+
+# 输出
+
+只输出责任划分结果，不执行。
+
+建议包含：
+
+```text
+Goal:
+<目标>
+
+Constraints:
+<约束>
+
+Ownership A:
+  Responsibility:
+  Write Scope:
+  Known Contracts:
+  Unknown / Assumptions:
+
+Ownership B:
+  Responsibility:
+  Write Scope:
+  Known Contracts:
+  Unknown / Assumptions:
+```
+
+Ownership 数量可以是一个或多个。
+
+如果分析后只能形成一个有效 ownership，应直接输出一个，而不是为了并行执行强行继续拆分。
+
+# 判断不适合继续拆分
+
+以下情况应停止继续拆分：
+
+- 多个修改强依赖同一个核心实现；
+- ownership 的写入边界无法明确；
+- 后续执行者必须频繁修改彼此负责的代码；
+- 某个 ownership 无法在不知道另一 ownership 具体实现细节的情况下形成有意义的局部修改；
+- 拆分本身比局部实现更复杂；
+- 所谓多个 ownership 只是同一实现步骤的人为切片。
+
+Contract 未确定、API 暂时不一致、repository-wide 暂时不能运行，本身都不是停止拆分的理由。
+
+# 不负责
+
+本 Skill 不负责：
+
+- 创建 Git worktree；
+- 启动 Subagent、Agent、Workflow 或 worker；
+- 并行执行；
+- 汇总执行结果；
+- Integration。
