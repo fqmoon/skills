@@ -1,7 +1,7 @@
 ---
 name: dispatch
-version: 2
-description: 将已经确定的 ownership 放入独立 Git worktree 与独立执行上下文中执行；等待全部完成后收集真实结果并自动调用 integration-review 收尾，不自动集成。
+version: 3
+description: 将已经确定的 ownership 放入独立 Git worktree 与独立执行上下文中执行；等待全部完成后收集真实结果并自动调用 integration-review 收尾；若 review 不可调用则明确失败并报告原因，不自动集成。
 disable-model-invocation: true
 metadata:
   opencode/autoinvoke: "false"
@@ -70,6 +70,8 @@ worker 可以由以下能力实现：
 ```text
 FAIL
 ```
+
+并报告导致失败的具体原因。
 
 不得：
 
@@ -277,9 +279,38 @@ worker 的返回消息只代表执行状态，不代表执行结果。
 
 `integration-review` 完成并写出 `INTEGRATION_REVIEW.md` 后，本轮 dispatch 才算完成。
 
+## Integration Review 不可用或调用失败
+
+如果当前环境中无法调用 `integration-review`，或调用过程中失败，则本轮 `dispatch` 必须失败。
+
+```text
+FAIL
+reason: <integration-review 不可用或调用失败的具体原因>
+```
+
+必须把实际可观察到的失败原因报告给用户，例如：
+
+- `integration-review` 未安装或不存在；
+- 当前宿主不支持调用该 Skill；
+- Skill 调用被禁用或权限不足；
+- 调用发生错误；
+- `integration-review` 未能完成其要求的输出。
+
+如果无法进一步确定根因，应如实报告当前能够观察到的错误信息，不得猜测原因。
+
+此时不得：
+
+- 在 `dispatch` 内自行执行 Integration Review；
+- 根据 `integration-review` 的描述模拟其行为；
+- 自行创建或伪造 `INTEGRATION_REVIEW.md`；
+- 跳过 Integration Review 并将本轮视为成功；
+- 自动进入 Integration。
+
+失败后保留已经完成的 worker worktree、branch 和结果文件，等待人工处理。
+
 # Stop
 
-`integration-review` 完成后立即停止。
+`integration-review` 完成后，或其不可用 / 调用失败并已经报告原因后，立即停止。
 
 不得：
 
