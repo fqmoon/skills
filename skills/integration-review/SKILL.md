@@ -1,8 +1,7 @@
 ---
 name: integration-review
-version: 1
-description: 审查多个独立 ownership 的真实实现，识别阻止它们共同进入满足 Gate 的系统的 Conflict、Gap、Overlap 与 Gate Violation；只输出 INTEGRATION_REVIEW.md，不执行整合或修复。
-disable-model-invocation: true
+version: 2
+description: 审查多个独立 ownership 的真实实现，识别阻止它们共同进入满足 Gate 的系统的 Conflict、Gap、Overlap 与 Gate Violation；通常由 dispatch 在执行收尾时调用，也可独立调用；只输出 INTEGRATION_REVIEW.md，不执行整合或修复。
 metadata:
   opencode/autoinvoke: "false"
 ---
@@ -12,6 +11,8 @@ metadata:
 用于多个 ownership 已经独立执行完成之后、真正 Integration 开始之前。
 
 本 Skill 只负责 **Integration Review**：读取各 ownership 的真实实现，找出它们同时进入同一个系统时必须先处理的全局问题，并把审查结果写入文件。
+
+本 Skill 通常由 `dispatch` 在所有 worker 完成后作为收尾步骤调用，也允许独立调用或重新调用。
 
 本 Skill **不是 Integration 执行器**。
 
