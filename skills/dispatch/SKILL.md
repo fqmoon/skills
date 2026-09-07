@@ -1,7 +1,7 @@
 ---
 name: dispatch
-version: 3
-description: 将已经确定的 ownership 放入独立 Git worktree 与独立执行上下文中执行；等待全部完成后收集真实结果并自动调用 integration-review 收尾；若 review 不可调用则明确失败并报告原因，不自动集成。
+version: 4
+description: 将已经确定的 ownership 放入独立 Git worktree 与独立执行上下文中执行；支持在保留的 worktree 上继续 dispatch；等待全部完成后收集真实结果并自动调用 integration-review 收尾；若 review 不可调用则明确失败并报告原因，不自动集成。
 disable-model-invocation: true
 metadata:
   opencode/autoinvoke: "false"
@@ -94,7 +94,38 @@ FAIL
 - 将正确的 `worktree_path` 交给 worker；
 - 保留所有 worktree 和 branch，直到人工决定后续处理。
 
-所有 worker 应从同一个逻辑 base 开始，除非当前任务明确要求其他方式。
+首次 dispatch 时，所有 worker 应从同一个逻辑 base 开始，除非当前任务明确要求其他方式。
+
+Continuation Dispatch 不要求重新回到共同 base；其执行起点按下节规则确定。
+
+# Continuation Dispatch
+
+如果用户在同一任务中再次显式调用 `dispatch`，且上一轮对应的 ownership、branch 与 worktree 仍然存在，则默认视为 **Continuation Dispatch**。
+
+Continuation Dispatch 的默认语义是继续修改，而不是重新开始。
+
+主上下文必须：
+
+- 复用上一轮已经确定且仍然有效的 ownership；
+- 复用各 ownership 原有的 branch 与 worktree；
+- 以各 worktree 当前真实状态作为本轮执行起点，包括其中尚未集成的已有修改；
+- 根据用户在上一轮之后提出的新要求、反馈或已经明确要处理的问题继续执行；
+- 只重新派遣本轮需要继续修改的 ownership；未受影响的 ownership 保持原状；
+- 本轮 worker 完成后重新执行 `integration-review`，使审查基于最新真实实现。
+
+除非用户明确要求重新开始、重做或从某个 base 重新执行，否则不得：
+
+- reset 到首次 dispatch 的 base；
+- 删除并重建已有 worktree；
+- 为相同 ownership 创建替代 branch；
+- 丢弃上一轮有效修改；
+- 把 Continuation Dispatch 当成一次全新的独立任务。
+
+如果用户的新要求已经改变 ownership 边界，使原 ownership 不再成立，则 `dispatch` 不得自行重新划分；应停止并报告需要先重新确定 ownership。
+
+如果用户再次调用 `dispatch`，但当前上下文中既没有新的可执行修改要求，也没有明确要继续处理的问题，则停止并报告缺少本轮执行增量，不要无目的地重复上一轮工作。
+
+`Stop` 中禁止“自动重新派遣 worker”，只禁止 `dispatch` 在无人指示时自行开启下一轮；它不禁止用户显式再次调用 `dispatch` 形成 Continuation Dispatch。
 
 # Worker 行为
 
