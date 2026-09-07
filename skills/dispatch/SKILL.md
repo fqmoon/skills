@@ -1,7 +1,7 @@
 ---
 name: dispatch
-version: 1
-description: 将已经确定的 ownership 放入独立 Git worktree 与独立执行上下文中执行；等待全部完成后由主上下文读取真实修改并汇总，不自动集成。
+version: 2
+description: 将已经确定的 ownership 放入独立 Git worktree 与独立执行上下文中执行；等待全部完成后收集真实结果并自动调用 integration-review 收尾，不自动集成。
 disable-model-invocation: true
 metadata:
   opencode/autoinvoke: "false"
@@ -112,7 +112,7 @@ FAIL
 
 不同 worker 最终形成的 contract 不一致，不视为 worker 失败。
 
-这些不一致应保留给 Integration 阶段判断。
+这些不一致应保留给 Integration Review 阶段判断。
 
 允许执行不会导致 ownership 外溢的：
 
@@ -221,18 +221,23 @@ result: WORKER_RESULT.md
 - 总结代码；
 - 输出详细过程或推理。
 
-# Main Context Inspection
+# Main Context Collection
 
-等待本轮所有 worker 完成后，主上下文自己读取：
+等待本轮所有 worker 完成后，主上下文只负责确认每个 ownership 的真实结果位置，并收集后续 Integration Review 所需输入。
+
+至少确认：
 
 - `WORKER_RESULT.md`；
-- `git status`；
-- `git diff`；
-- commit；
-- 修改后的接口定义；
-- 必要的调用关系。
+- worktree path；
+- branch；
+- worker 状态；
+- Goal；
+- Gate 或等价的必须满足条件；
+- Ownership 定义。
 
 不得把 worker 返回消息当成执行结果。
+
+主上下文在这一阶段不要自行承担跨 ownership 的审查判断。
 
 # Source of Truth
 
@@ -249,29 +254,34 @@ result: WORKER_RESULT.md
 
 worker 的返回消息只代表执行状态，不代表执行结果。
 
-# 汇总范围
+# Integration Review 收尾
 
-只汇总：
+所有 worker 都已经完成或明确失败，且上述输入已经收集后，`dispatch` 必须调用 `integration-review` 作为本轮正常收尾步骤。
 
-- 各 ownership 实际发生的修改；
-- 关键设计决策；
-- exported / required contract；
-- contract assumptions；
-- 实际代码层面的不一致；
-- 实际代码层面的冲突；
-- Integration 前需要人工决定的问题。
+将本轮的：
 
-以下内容不属于冲突：
+- Goal；
+- Gate 或等价的必须满足条件；
+- Ownership；
+- 各 ownership 的 worktree / branch；
+- worker 状态；
+- `WORKER_RESULT.md` 位置；
 
-- 不同 worktree 的 `WORKER_RESULT.md` 不一致；
-- 临时结果文件本身发生冲突；
-- 两个 worker 对自己的实现采用不同但互不影响的内部方案。
+交给 `integration-review`。
+
+跨 ownership 的 Conflict、Gap、Overlap、Gate Violation 由 `integration-review` 读取真实修改后判断。
+
+`dispatch` 不重复做一份平行的 integration 汇总，不替代 `integration-review`，也不把 review 逻辑内嵌进自身。
+
+即使部分 worker 失败，也应调用 `integration-review`。如果关键实现无法读取，由 `integration-review` 将状态记录为 `INCOMPLETE`。
+
+`integration-review` 完成并写出 `INTEGRATION_REVIEW.md` 后，本轮 dispatch 才算完成。
 
 # Stop
 
-汇总完成后立即停止。
+`integration-review` 完成后立即停止。
 
-完成汇总后不得：
+不得：
 
 - merge；
 - cherry-pick；
@@ -282,4 +292,4 @@ worker 的返回消息只代表执行状态，不代表执行结果。
 - 自动进入 Integration；
 - 自动执行 repository-wide 修复。
 
-即使所有修改看起来可以直接整合，也必须停止并等待人工介入。
+即使 `INTEGRATION_REVIEW.md` 为 `CLEAN`，也必须停止并等待人工介入。
