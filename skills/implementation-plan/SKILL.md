@@ -2,9 +2,6 @@
 name: implementation-plan
 version: 1
 description: 将已经明确的需求、Gate、设计意图或高层 Plan，结合当前 repository 的真实实现，展开为可直接用于后续执行的具体实施方案；负责选择技术路线、确定主要修改范围与实施顺序，但不执行修改。
-disable-model-invocation: true
-metadata:
-  opencode/autoinvoke: "false"
 ---
 
 # Implementation Plan
