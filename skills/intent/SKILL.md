@@ -56,7 +56,7 @@ Intent 通常包括：
 
 > 使用 BVH 加速查询。
 
-这通常是 Implementation，而不是 Intent。
+这通常是 Impl，而不是 Intent。
 
 除非真正想表达的是更高层目标，例如：
 
@@ -88,9 +88,9 @@ Gate:
 
 Intent 可以存在模糊性和权衡；Gate 应更接近不可违反条件。
 
-需要显式整理 Gate 时，使用 `gate` Skill。
+需要显式理解或整理 Gate 时，使用 `gate` Skill。
 
-# Intent 不是 Implementation
+# Intent 不是 Impl
 
 Intent 不应因为当前已经存在某个实现，就被反向解释成“必须继续这样做”。
 
@@ -108,13 +108,15 @@ Intent 不应因为当前已经存在某个实现，就被反向解释成“必�
 Intent:
 减少模型中的顺序依赖
 
-Implementation:
+Impl:
 删除 StrokePoint 上的部分属性
 ```
 
-如果以后找到更好的 Implementation，只要仍符合 Intent，就可以替换。
+如果以后找到更好的 Impl，只要仍符合 Intent，就可以替换。
 
-需要把 Intent 与 Gate 展开成具体实施路线时，可使用 `implementation-plan` Skill。
+需要判断当前技术选择是否只是可替换手段时，使用 `impl` Skill。
+
+需要把已经明确的 Intent、Gate、Requirement 或高层 Impl 展开成具体实施路线时，使用 `impl-expand` Skill。
 
 # 主动调用
 
@@ -181,7 +183,7 @@ Intent 不是永久不变的“项目圣旨”。
 
 当新信息明确改变方向时，应更新 Intent，而不是维护历史表述。
 
-但不要因为 Implementation 改变，就自动认为 Intent 也改变。
+但不要因为 Impl 改变，就自动认为 Intent 也改变。
 
 # 输出
 
@@ -210,7 +212,7 @@ Intent 不是永久不变的“项目圣旨”。
 # 不要做什么
 
 - 不要把 Intent 写成详细 Requirement；
-- 不要把 Implementation 冒充 Intent；
+- 不要把 Impl 冒充 Intent；
 - 不要把 Gate 全部复制进 Intent；
 - 不要把用户没表达过的偏好补齐；
 - 不要为了形式完整而强迫输出 Goal / Priority / Trade-offs / Non-goals 全部字段；
