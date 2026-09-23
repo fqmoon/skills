@@ -171,26 +171,11 @@ Agent **可以主动调用** `bullshit`，但只在高价值场景下。
 - 不要把不确定性伪装成确定结论；
 - 不要在缺少可验证 mental model 时继续执行。
 
-# 与其他 Skill 的关系
+# 与 Gate 的关系
 
-```text
-bullshit
-    验证 Understanding / Mental Model
+`bullshit` 检查当前理解是否可靠；Gate 定义可接受结果必须满足什么。两者关注不同层面，不构成固定执行流程。
 
-Gate
-    定义所有可接受实现必须满足什么
-
-Ownership
-    划分方案搜索空间
-
-Implementation
-    在约束下寻找可行解
-
-Integration / Review
-    检查实现与组合结果
-```
-
-`bullshit` 位于 Gate 之前，也可以在 Gate 或 Implementation 暴露新的事实与冲突后再次调用。
+`bullshit` 可以在形成 Gate 之前使用，也可以在后续讨论或实现暴露新的事实与冲突后再次使用。
 
 它的目的不是替用户理解，而是尽快发现：
 
