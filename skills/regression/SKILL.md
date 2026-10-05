@@ -1,7 +1,7 @@
 ---
 name: regression
 version: 1
-description: 在实现完成或基本完成后，从当前真实结果出发，沿 Impl → Gate → Intent 反向回归，利用执行后才暴露的新事实重新判断原实现、约束与意图是否仍然成立。用于高不确定性任务、实现后发现结果与预期不完全一致、或需要把现实反馈回上层语义时。强烈建议在独立 Subagent、fresh context、context reset 或等价机制中执行。
+description: 在实现完成或基本完成后，从 Reality 出发沿 Impl → Gate → Intent 反向回归；当实际实现复杂、影响面广、跨越多个结构边界，或执行后出现会改变原判断的新事实时主动调用。
 ---
 
 # Regression
