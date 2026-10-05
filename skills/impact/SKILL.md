@@ -192,15 +192,15 @@ Impact 不默认输出：
 
 优先解释结构性成本，而不是生成看似精确的数字。
 
-# 与 Impl Expand 的关系
+# 与 Concretize 的关系
 
-`impact` 和 `impl-expand` 职责不同。
+`impact` 和 `concretize` 职责不同。
 
 ```text
 impact
 = 调查什么会改变，以及变化传播多远
 
-impl-expand
+concretize
 = 基于已经理解的影响，决定具体怎样实现
 ```
 
@@ -216,7 +216,7 @@ Route B
 → Structural
 ```
 
-但 Impact 不应继续替用户或 `impl-expand` 选择最终路线并拆成 Phase。
+但 Impact 不应继续替用户或 `concretize` 选择最终路线并拆成 Phase。
 
 如果当前影响调查已经足以支持后续规划，应在这里停止。
 
