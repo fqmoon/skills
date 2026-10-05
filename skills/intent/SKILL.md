@@ -116,7 +116,7 @@ Impl:
 
 需要判断当前技术选择是否只是可替换手段时，使用 `impl` Skill。
 
-需要把已经明确的 Intent、Gate、Requirement 或高层 Impl 展开成具体实施路线时，使用 `impl-expand` Skill。
+需要把已经明确的 Intent、Gate、Requirement 或高层 Impl 展开成具体实施路线时，使用 `concretize` Skill。
 
 # 主动调用
 
