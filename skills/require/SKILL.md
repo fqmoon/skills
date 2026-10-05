@@ -225,7 +225,7 @@ Require 可以按需利用其他 Skill 帮助完成自己的职责：
 - 当目标、优先级或取舍本身不清楚时，可以使用 `intent`；
 - 当不可违反条件需要明确时，可以使用 `gate`；
 - 当需要判断某个要求其实只是当前实现选择时，可以使用 `impl`；
-- 当用户明确需要具体 Implementation Plan 时，可以使用 `impl-expand`；
+- 当用户明确需要具体 Implementation Plan 时，可以使用 `concretize`；
 - 当关键判断依赖一个可能错误的 mental model 时，可以使用 `bullshit`；
 - 当执行完成或基本完成后，实际实现复杂、影响面广、跨越多个结构边界，或执行结果暴露出会改变原判断的新事实时，应优先考虑使用 `regression`，把当前 Reality 重新回归到 Impl → Gate → Intent。
 
@@ -240,7 +240,7 @@ gate
   ↓
 impl
   ↓
-impl-expand
+concretize
 ```
 
 Require 是协作模式，不是流程编排。
