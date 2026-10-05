@@ -1,14 +1,26 @@
-# skills
+# Agent Skills
 
 一组用于 Human–Agent 协作的软件工程 Skills。
 
-设计上主要采用 **bookend skills**：
+这个仓库包含几类不同性质的 Skills：协作模式、认知模型、一次性动作，以及已经停止使用的旧实验。
 
-- 执行前，用认知类 Skills 对齐目标、约束与实现边界；
-- 执行中，允许 Agent 自由探索、实现和承担局部技术判断；
-- 执行后，用 Regression 从真实结果反向检查原来的 Impl、Gate 和 Intent 是否仍然成立。
+当前主要的设计方向是 **Bookend-Oriented**。
 
-它们不是一条固定 Workflow，而是一组可以按需组合、主动调用或显式调用的认知、动作与协作模式。
+## Bookend-Oriented Design
+
+Bookend 原意是“书挡”。
+
+这里借它表示一种任务组织方法：重点放在执行的两端，而不是规定中间过程。
+
+执行前，先提炼真正重要的目标、约束与实现边界；执行后，再根据实际结果重新检查这些重点是否仍然成立。
+
+它不是 Workflow。
+
+Workflow 更关注“接下来按什么步骤做”；Bookend 更关注“开始前和结束后分别应该看什么”。
+
+相比预先把任务固定成 Plan、Spec 或 TDD 流程，这种方式更适合 Agent 的探索式执行：中间过程可以根据真实代码、依赖、成本和新发现自由调整，而两端负责持续抓住重点。
+
+当前主要通过 Intent、Gate、Impl 等 Skills 建立前端 bookend，通过 Regression 从 Reality 沿 Impl → Gate → Intent 反向回归，形成后端 bookend。
 
 ## Modes
 
@@ -45,4 +57,6 @@ npx skills add fqmoon/skills -g
 
 ## Archive
 
-`archive/` 保存已经废弃或不再主动维护的旧 Skills。
+`archive/` 保存已经停止使用、被替代或不再适合当前设计方向的旧 Skills。
+
+这些内容保留作为实验和设计演化记录，但不属于当前推荐使用的 Skill 集合。
