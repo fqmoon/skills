@@ -146,7 +146,8 @@ Drive 默认激活四个认知模型。
 - 需要判断某项决定是否只是可替换实现时，使用 `impl`；
 - Debt 在 Drive 中默认持续生效；当某个已知问题是否应立即处理、延迟或记录到 Hardening 的判断本身较复杂时，使用 `debt` 展开分析；
 - 需要把已经明确的 Requirement、Intent、Gate 或高层 Impl 展开成具体实施方案时，使用 `impl-expand`；
-- 当关键决策依赖一个可能错误的 mental model 时，可以使用 `bullshit`。
+- 当关键决策依赖一个可能错误的 mental model 时，可以使用 `bullshit`；
+- 当执行完成或基本完成后，实际实现复杂、影响面广、跨越多个结构边界，或实现过程形成了明显路径依赖时，可以主动使用 `regression`，重新从 Reality 回归到 Impl → Gate → Intent。
 
 不要因为这些 Skill 存在就机械调用。
 
