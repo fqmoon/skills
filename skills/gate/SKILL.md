@@ -41,7 +41,7 @@ Intent 提供方向，Gate 划定可接受解空间，Impl 表示当前选中的
 
 需要判断某个技术决定是否只是可替换实现时，使用 `impl` Skill。
 
-需要把当前 Requirement、Intent、Gate 或高层 Impl 展开为具体实施方案时，使用 `impl-expand` Skill。
+需要把当前 Requirement、Intent、Gate 或高层 Impl 展开为具体实施方案时，使用 `concretize` Skill。
 
 # 什么属于 Gate
 
