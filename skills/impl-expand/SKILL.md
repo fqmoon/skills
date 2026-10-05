@@ -1,7 +1,7 @@
 ---
 name: impl-expand
-version: 1
-description: 将已经明确的需求、Intent、Gate、高层 Impl 或 Plan，结合当前 repository 的真实实现，展开为可直接用于后续执行的具体 Implementation Plan；负责选择技术路线、确定主要修改范围与实施顺序，但不执行修改。
+version: 2
+description: 将已经明确的需求、Intent、Gate、高层 Impl 或 Plan，结合当前 repository 的真实实现与 change surface，展开为可直接用于后续执行的具体 Implementation Plan；在选择技术路线前先判断变化传播范围，必要时调用 impact 进行结构性调查，但不执行修改。
 ---
 
 # Impl Expand
@@ -39,24 +39,49 @@ description: 将已经明确的需求、Intent、Gate、高层 Impl 或 Plan，�
 
 实施方案必须基于真实 repository，而不是只根据输入文字推演。
 
-在形成方案前，应调查与任务直接相关的：
+在选择 Implementation route 之前，先判断当前变化的 change surface 与传播范围。
 
-- 当前实现；
-- 数据结构；
-- 调用路径；
-- 模块责任；
-- API / contract；
-- 持久化格式；
-- 测试与文档；
-- 已存在的相关机制。
+首先进行轻量判断：
+
+```text
+change surface 是否明显局部？
+    ├─ YES → 自行完成必要的最小调查，然后继续 impl-expand
+    └─ NO / UNCERTAIN → 调用 impact
+```
+
+当变化明显局部、边界清楚、没有重要结构传播时，不要为了形式完整机械调用 `impact`。
+
+当以下任一情况不清楚时，应调用 `impact` 先完成专门调查：
+
+- 数据或状态如何跨模块传播；
+- ownership 或 lifecycle 是否变化；
+- 持久化或恢复路径是否受影响；
+- public API / internal contract 是否变化；
+- 调度、缓存、渲染或异步链路是否存在隐藏耦合；
+- 表面修改范围是否明显低估真实 change surface；
+- 当前架构是否能够自然承载该变化。
+
+如果已有可靠、近期且与当前任务一致的 Impact 结果，应直接复用，不要重复调查。
+
+`impact` 负责回答：
+
+> 什么会改变，以及变化传播多远？
+
+`impl-expand` 在此基础上继续回答：
+
+> 基于这些影响，具体准备怎样实现？
 
 不要为了“完整了解项目”进行无边界调查。
 
-只读取足以决定当前实施路线的上下文。
+只读取足以决定当前实施路线的上下文；必要时可以在 Impact 结果之外补充局部 implementation-specific investigation。
 
 # 从抽象到具体
 
 本 Skill 可以并且应该做技术决策。
+
+但技术决策应建立在已经理解 change surface 的基础上。
+
+不要一边猜测影响范围，一边直接选择方案。
 
 Intent 提供方向，Gate 划定可接受空间，Impl 表示当前技术选择；
 `impl-expand` 则需要结合真实 repository 进一步收缩 solution space，
@@ -66,8 +91,8 @@ Intent 提供方向，Gate 划定可接受空间，Impl 表示当前技术选择
 
 - 总体技术路线；
 - 需要修改、删除、替换或保留的机制；
-- 主要模块和文件范围；
-- 数据流与状态变化；
+- 基于 Impact 结果确定主要模块和文件范围；
+- 基于 Impact 结果决定数据流、状态、ownership 或 lifecycle 应怎样调整；
 - 必要的 API / contract 变化；
 - 数据迁移或兼容策略；
 - 实施阶段及依赖顺序；
@@ -168,6 +193,29 @@ Notes:
 ## Execution Notes
 仅记录执行阶段必须知道、但不值得独立形成 Phase 的事项。
 
+# 与 Impact 的关系
+
+`impl-expand` 不把 `impact` 当成固定仪式步骤，但必须先完成 impact 判断。
+
+原则：
+
+```text
+Local and obvious
+→ impl-expand 自行完成最小必要调查
+
+Not obviously local / structurally uncertain
+→ impact
+→ consume Change Map
+→ impl-expand
+```
+
+因此：
+
+- Impact thinking 是形成 Implementation Plan 前的逻辑必经条件；
+- `impact` Skill 是按需调用的专门调查动作；
+- 不要因为存在 `impact` 就让每个局部任务多一层分析流程；
+- 也不要在结构传播尚不清楚时跳过调查直接给出 Implementation Plan。
+
 # 不负责
 
 本 Skill 不负责：
@@ -184,4 +232,4 @@ Notes:
 
 # 核心原则
 
-> **impl-expand 负责把已经足够明确的认知与约束，结合真实 repository，展开成具体实施路线。**
+> **impl-expand 先确认变化传播范围已经足够清楚；局部变化自行完成最小调查，结构影响不明时调用 impact。随后基于这些事实选择技术路线并展开为具体 Implementation Plan。**
