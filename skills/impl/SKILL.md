@@ -208,11 +208,11 @@ Agent **可以主动调用** `impl`，但只在区分“实现手段”和“真
 - 多个 Impl 都能满足同一 Intent / Gate；
 - 需要明确当前采用的技术方向。
 
-# 与 impl-expand 的关系
+# 与 concretize 的关系
 
 `impl` 定义 Implementation 的认知语义。
 
-`impl-expand` 则是在需要落地时，将已经明确的 Intent、Gate、Requirement 或高层 Impl 结合真实 repository，展开成具体 Implementation Plan。
+`concretize` 则是在需要落地时，将已经明确的 Intent、Gate、Requirement 或高层 Impl 结合真实 repository，展开成具体 Implementation Plan。
 
 两者不是同一个 Skill：
 
@@ -220,7 +220,7 @@ Agent **可以主动调用** `impl`，但只在区分“实现手段”和“真
 impl
 = 理解“什么是当前实现手段”
 
-impl-expand
+concretize
 = 把当前理解展开成可执行实施方案
 ```
 
