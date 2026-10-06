@@ -1,7 +1,7 @@
 ---
 name: regression
 version: 1
-description: 在实现完成或基本完成后，从 Reality 出发沿 Impl → Gate → Intent 反向回归；当实际实现复杂、影响面广、跨越多个结构边界，或执行后出现会改变原判断的新事实时主动调用。
+description: 在实现完成或基本完成后，从最终 Reality 盲重建其实际体现的 Intent / Gate / Impl，再由保留原始上下文的主 Agent 与原始理解进行回归比对；当实际实现复杂、影响面广、跨越多个结构边界，或执行后可能发生语义漂移时主动调用。
 ---
 
 # Regression
@@ -12,7 +12,7 @@ Regression 是一次性的 **back-bookend action**。
 
 它回答的是：
 
-> 实现完成以后，带着现在已经知道的现实结果，沿 Impl → Gate → Intent 反向走回去，原来的高层理解还站得住吗？
+> 如果一个不知道原始 Intent 的独立观察者只看到最终结果，会认为这个实现到底在解决什么问题、保护什么边界、体现什么优先级？它重建出来的理解，和最初的 Intent / Gate 是否还是同一件事？
 
 Front bookend 将高层语义逐步压到可以执行：
 
@@ -24,248 +24,314 @@ Gate
 Impl
   ↓
 Execution
+  ↓
+Reality
 ```
 
-Regression 反向回归：
+Regression 做一次语义 round-trip：
 
 ```text
-Reality
-  ↑
-Impl
-  ↑
-Gate
-  ↑
-Intent
+Original Intent / Gate
+        │
+        │ kept by Main Agent
+        ▼
+      Execution
+        ↓
+      Reality
+        │
+        │ blind reconstruction
+        ▼
+Reconstructed Intent / Gate / Impl
+        │
+        ▼
+Main Agent compares both sides
 ```
 
-重点不是“检查有没有按原计划做完”，而是利用执行后新增的事实，重新判断原先的 Impl、Gate 和 Intent 是否需要修正。
+重点不是“检查有没有按原计划做完”，而是检查：
+
+> 经过真实实现以后，原来的高层语义是否仍然能从结果中被读回来。
 
 # 为什么需要 Regression
 
-有些问题在执行前无法被完整理解。
+实现过程会产生路径依赖。
 
-真正实现之后，才可能暴露：
+Agent 在执行时会逐渐接受：
 
-- 实际复杂度；
-- 隐藏耦合；
-- ownership 或 lifecycle 变化；
-- 数据流或状态传播的真实形态；
-- 性能与交互效果；
-- 原先没有意识到的约束；
-- 某个 Gate 过弱、过窄或定义错误；
-- 原先对 Intent 的理解不够准确；
-- 某个技术方向虽然能满足 Gate，但现实结果并不符合真正想要的方向。
+- 局部实现选择；
+- workaround；
+- 新增假设；
+- 结构妥协；
+- 为了推进任务形成的临时解释；
+- 对自己 Implementation 的合理化。
 
-因此，原始 Intent、Gate 和 Impl 都不是不可挑战的权威。
+这些东西可能都很合理，但累计起来以后，最终实现可能已经服务于另一个问题。
 
-执行不仅产生结果，也产生新的知识。
-
-Regression 的任务，是把这些知识反馈回上层语义。
-
-# 核心路径
-
-Regression 按以下方向重新建立判断：
+普通 Verify 通常沿着：
 
 ```text
-Reality
-  ↓
-Impl regression
-  ↓
-Gate regression
-  ↓
-Intent regression
+Requirement / Gate
+        ↓
+Implementation
 ```
 
-这不是固定格式的报告流程，而是判断方向。
+检查实现是否满足已知要求。
 
-对于简单任务，如果 Reality 没有产生新的高层信息，可以非常简短地结束。
+Regression 故意反过来：
+
+```text
+Implementation / Reality
+        ↓
+Reconstructed Intent
+        ↓
+compare with
+        ↓
+Original Intent
+```
+
+如果最终实现真的保留了原始重点，那么在不知道原答案的情况下，也应该能够从 Reality 中大致重建出来。
+
+反之：
+
+- 原始重点消失；
+- 优先级被倒置；
+- 某个约束变成实现手段；
+- 某个实现手段反而变成核心目标；
+- 新增目标悄悄取代原目标；
+
+都属于值得报告的 regression。
+
+# 核心原则：Blind Reconstruction
+
+Regression 的独立 evaluator **不应知道原始 Intent、Gate、Plan 或 Requirement discussion**。
+
+这不是信息缺失，而是测量方法的一部分。
+
+独立 evaluator 的任务不是：
+
+> 猜开发者原来想做什么。
+
+而是：
+
+> 只根据最终 Reality，描述这个系统现在实际体现了什么 Intent、约束、优先级和边界。
+
+因此：
+
+```text
+Unknown original intent
+        +
+Final artifact / behavior
+        ↓
+Reconstructed semantic model
+```
+
+然后由仍然保留原始上下文的 Main Agent 做真正的 Regression。
 
 # 1. Reality
 
-先恢复当前真实结果，而不是相信原 Plan、原实现描述或执行过程中的自我解释。
+独立 evaluator 先恢复当前真实结果，而不是相信执行过程中的解释。
 
 优先依据：
 
 - 当前 repository；
-- diff / changed files；
 - 当前真实行为；
+- 当前架构与数据流；
 - 已有运行结果；
 - 必要的测试结果；
 - benchmark、截图、日志或其他直接证据；
-- 执行过程中明确暴露的新事实。
+- 必要时的 diff。
 
-重点寻找：
+重点不是无边界重建整个项目，而是理解：
 
-> 哪些事情，是执行前不知道、执行后才知道的？
+> 最终结果实际上在做什么？
 
-不要为了 Regression 无边界重建整个项目。
+只恢复足以重建 Intent / Gate / Impl 的 Reality。
 
-只恢复足以重新判断 Impl、Gate 和 Intent 的现实。
+# 2. Reconstruct Impl
 
-# 2. Impl Regression
+先回答最终实现采取了什么主要结构和机制。
 
-从 Reality 回看原先的 Implementation 判断。
+只保留会影响高层语义的内容，例如：
 
-检查：
+- ownership；
+- lifecycle；
+- data flow；
+- state propagation；
+- contract；
+- 主要结构边界；
+- 关键 trade-off。
 
-- 原先的技术判断是否被现实证实；
-- 实际 Implementation 是否与原计划发生重要偏移；
-- 哪些假设被推翻；
-- 是否出现新的结构成本；
-- ownership、lifecycle、data flow、contract 或其他关键机制是否与原理解不同；
-- 某个原本看似必要的技术方案是否被证明只是偶然选择；
-- 是否发现更简单或更自然的实现方向。
+不要把 Regression 退化成代码 Review。
 
-这里的目标不是 Review 代码质量，而是回答：
+这里的目标不是评价实现质量，而是建立后续语义重建所需的最小技术模型。
 
-> 现在看到真实实现后，我们对 Impl 的理解需要改吗？
+# 3. Reconstruct Gate
 
-# 3. Gate Regression
+根据 Reality 反推出这个实现实际上在保护什么条件。
 
-不要只问：
+例如：
 
-> 实现是否满足原 Gate？
+- 哪些行为明显被当作必须保持；
+- 哪些边界被结构性保护；
+- 哪些失败被明确避免；
+- 哪些条件只是次要考虑；
+- 哪些原本可能重要的条件在最终结果中几乎看不出来。
 
-还要问：
+不要引用原始 Gate。
 
-> 执行后的现实是否说明原 Gate 本身需要修正？
+独立 evaluator 应只报告：
 
-必须区分：
+> 从结果来看，这个实现似乎把什么当成“不能错”的东西？
 
-```text
-Impl 不满足 Gate
-→ execution problem
+# 4. Reconstruct Intent
 
-Impl 满足 Gate，
-但 Reality 说明 Gate 太弱、太窄、遗漏关键条件或定义错误
-→ gate problem
-```
-
-测试通过不能自动说明 Gate 正确。
-
-Gate 也不是因为已经确认过，就不能被现实推翻。
-
-如果执行后发现：
-
-- Gate 无法区分真正好坏的结果；
-- Gate 满足，但结果明显不符合预期；
-- 原 Gate 隐含了错误前提；
-- 新事实暴露了此前不存在的关键边界；
-
-应明确指出 Gate 需要重新对齐。
-
-# 4. Intent Regression
-
-继续从 Gate 回到 Intent。
+继续向上重建最终结果体现的 Intent。
 
 核心问题：
 
-> 现在已经看到真实结果、真实代价、真实副作用和真实使用方式后，我们还认为原来的 Intent 是准确的吗？
+> 如果只看到现在这个结果，它最像是在解决什么问题？
 
-允许出现：
-
-```text
-Impl 正确
-Gate 正确
-但 Intent 理解需要修正
-```
-
-也允许：
+应尽量给出：
 
 ```text
-Gate 被满足
-但满足 Gate 的现实结果并不服务于原 Intent
+Primary intent
+Important constraints
+Apparent priorities
+Likely non-goals
+Ambiguities
 ```
 
-或者：
+保持抽象和简短。
 
-```text
-执行后发现原先真正想解决的问题其实不是这个
-```
+不要因为看到某段代码，就发明一个宏大的产品哲学。
 
-Intent regression 不要求强行改变 Intent。
-
-如果原 Intent 仍然成立，应直接说明。
-
-不要为了证明 Regression 有价值而制造新的高层解释。
+不要从 commit message、原始需求、历史对话或 Plan 中偷看答案。
 
 # Context Isolation
 
-Regression **强烈建议在独立或重置后的上下文中执行**。
+Regression **强烈建议使用独立 Subagent、新会话、fresh context、context reset 或等价机制执行 blind reconstruction**。
 
-优先使用：
+这里的隔离不是为了制造“第二人格”，也不只是为了减少 implementation history 的噪声。
 
-- 独立 Subagent；
-- 新会话；
-- fresh context；
-- context reset；
-- handoff 到独立 Agent；
-- 其他能够显著减少 implementation history 影响的机制。
+更重要的原因是：
 
-原因：
+> **不知道原始 Intent，本身就是 Regression 的测量条件。**
 
-执行上下文通常包含大量：
+如果 evaluator 已经知道原始 Intent，它很容易围绕已知答案解释最终实现，Regression 就会退化成普通确认。
 
-- 局部实现选择；
-- 中途 workaround；
-- 失败尝试；
-- 临时解释；
-- 已经接受的假设；
-- 为推进任务形成的路径依赖；
-- Agent 对自己 Implementation 的合理化。
+## 给独立 evaluator 的输入
 
-这些信息对 Execution 有价值，但可能妨碍 Regression 重新建立判断。
+应提供：
 
-Regression 需要的是：
+- 当前 repository / final artifact；
+- 当前真实行为；
+- 必要的运行证据；
+- 必要时的 diff；
+- 为理解最终状态所必需的环境事实。
 
-> 从 Reality 出发重新建模，而不是延续 execution narrative。
-
-使用独立上下文的目的不是制造“第二人格”，也不是进行多视角表演。
-
-它的目的，是减少前一路径对当前判断的约束。
-
-## 推荐输入
-
-向独立 Agent / Subagent 提供足够但克制的材料：
+默认不要提供：
 
 - 原始 Intent；
 - 原始 Gate；
-- 必要的高层 Impl / Plan；
-- 当前 repository / diff / result；
-- 已知的执行后新事实。
+- Require 对话；
+- approved Plan；
+- handoff 中的目标描述；
+- commit message 中的目标说明；
+- 完整 implementation history；
+- 执行过程中的自我解释。
 
-不要默认注入完整执行聊天记录、全部失败尝试和长篇实现过程。
-
-只有当某段执行历史本身是理解 Reality 的必要证据时，才补充它。
+最终文档如果直接陈述“本功能旨在……”，也应谨慎使用，因为它可能把原始 Intent 重新注入 evaluator。
 
 ## 无法隔离上下文时
 
-如果当前环境不支持 Subagent、context reset 或新会话，可以在当前 Agent 中执行 Regression。
+如果当前环境不支持 Subagent、context reset 或新会话，可以在当前 Agent 中执行降级版 Regression。
 
-但应显式：
+但必须显式分离两个阶段：
 
-- 不把执行过程中的旧判断当成权威；
-- 不沿用原有自我解释；
-- 重新从 Reality → Impl → Gate → Intent 建立判断；
-- 优先依赖当前事实，而不是 implementation narrative。
+1. 暂时忽略原始 Intent / Gate，仅从 Reality 重建当前语义；
+2. 完成重建后，再恢复原始上下文做比对。
+
+如果做不到真正的信息隔离，应承认这是较弱的 Regression，而不是假装 blind reconstruction 没有被污染。
+
+# 5. Main-Agent Regression
+
+真正的 Regression 在 Main Agent 中发生。
+
+Main Agent 同时拥有：
+
+```text
+Original Intent / Gate
+        +
+Reconstructed Intent / Gate / Impl
+```
+
+然后做语义比对。
+
+重点分类：
+
+```text
+Preserved
+Lost
+Mutated
+Added
+Ambiguous
+```
+
+## Preserved
+
+原始重点仍然能从最终结果中清楚读出。
+
+## Lost
+
+原始 Intent / Gate 中的重要内容，在重建结果中消失。
+
+这通常意味着它没有真正进入最终 artifact，或者已经弱化到不可见。
+
+## Mutated
+
+某个原始概念仍然存在，但意义、优先级或作用发生变化。
+
+例如：
+
+```text
+Original:
+独立视图是核心，同步只是便利能力
+
+Reconstructed:
+统一同步是核心，独立视图只是例外
+```
+
+这种 drift 往往比完全遗漏更危险。
+
+## Added
+
+最终实现体现了原始 Intent 中不存在的新目标或新约束。
+
+Added 不自动等于错误。
+
+它可能是执行后发现的合理新事实，也可能是实现路径反客为主。
+
+## Ambiguous
+
+Reality 无法稳定支持某个高层判断。
+
+不要为了让报告完整而强行判定。
 
 # 主动调用
 
-Agent **可以主动调用** `regression`，但只在执行后的现实可能改变上层理解时。
+Agent **可以主动调用** `regression`，但只在执行后存在语义漂移风险时。
 
 典型场景：
 
-- 任务本来就具有较高不确定性；
-- 实现过程中暴露了重要的新事实；
-- 实际复杂度、结构代价或行为与预期明显不同；
-- Gate 看似全部满足，但最终结果仍然“不对”；
+- 实际实现复杂、影响面广；
+- 跨越多个结构边界；
+- 实现过程经历了较多局部决策或 workaround；
+- 最终结果虽然工作，但已经很难一句话说明它服务的原目标；
+- Gate 看似全部满足，但整体感觉“不对”；
 - 某个方案只有做出来之后才能判断；
-- 实现完成后发现原先的 Requirement / Gate / Intent 可能建模不准确；
-- 需要决定下一轮应修 Impl、Gate 还是 Intent。
+- 执行后出现了会改变原判断的新事实；
+- 需要判断下一轮应该修 Impl、Gate 还是 Intent。
 
-不要因为每次代码修改都机械调用。
-
-对于明确、局部、机械、低不确定性的修改，Regression 通常没有额外价值。
+对于明确、局部、机械、低不确定性的修改，不要机械调用。
 
 # 与测试 / Verify 的关系
 
@@ -273,22 +339,32 @@ Regression 不是测试 Skill。
 
 测试、类型检查、运行验证、benchmark 等都可以作为 Reality 的证据来源，但它们不是 Regression 的目标。
 
-Regression 不负责提醒 Agent“应该按 Gate 实现”。
+Verify 更接近：
 
-严格按 Gate 执行，本来就是 Execution 的职责。
+```text
+Known requirement
+      ↓
+Does implementation satisfy it?
+```
 
-Regression 关注的是：
+Regression 更接近：
 
-> 经过真实实现以后，原先的 Gate 和 Intent 是否仍然值得保留。
+```text
+Final implementation
+      ↓
+What requirement does it appear to embody?
+      ↓
+Is that still the original one?
+```
 
 因此：
 
 ```text
 tests pass
 ≠
-Gate 一定正确
+Gate preserved
 ≠
-Intent 一定正确
+Intent preserved
 ```
 
 # 与 Impact 的关系
@@ -300,7 +376,7 @@ Impact
 = 执行前，调查变化可能怎样传播
 
 Regression
-= 执行后，利用真实结果反向修正高层理解
+= 执行后，从最终结果重建语义，再与原始语义比对
 ```
 
 可以理解为：
@@ -315,18 +391,13 @@ Impl
 
 After:
 Reality
-    ↑
-Impl
-    ↑
-Gate
-    ↑
-Intent
-Regression
+    ↓
+Blind reconstruction
+    ↓
+Reconstructed Intent / Gate
+    ↓
+Compare with original
 ```
-
-Impact 关注未来的 change shape。
-
-Regression 关注现实对原有 semantic model 的反馈。
 
 两者不是固定 Workflow，也不要求每个任务都成对调用。
 
@@ -338,36 +409,62 @@ Regression 关注现实对原有 semantic model 的反馈。
 
 `regression` 则专门处理：
 
-> 执行后新增的现实，是否反过来要求修正 Impl、Gate 或 Intent。
+> 最终 artifact 还能不能重新表达最初真正想解决的问题。
 
-Regression 可以在过程中借用类似的判断方式，但不要退化成普通 premise recovery 或 mental-model review。
+Regression 可以借用类似的判断方式，但不要退化成普通 premise recovery 或 mental-model review。
 
 # 输出
 
-默认只报告真正需要向上修正的内容。
+独立 evaluator 默认只输出重建结果，不做原始目标比对：
 
-推荐结构：
+```markdown
+# Reconstructed Intent
+
+## Primary Intent
+...
+
+## Important Constraints
+- ...
+
+## Apparent Priorities
+1. ...
+
+## Likely Non-goals
+- ...
+
+## Ambiguities
+- ...
+```
+
+Main Agent 再输出 Regression：
 
 ```markdown
 # Regression
 
-## Reality
-执行后新增的、会影响上层判断的事实。
+## Preserved
+- ...
 
-## Regressions
-- Impl: 是否需要修正
-- Gate: 是否需要修正
-- Intent: 是否需要修正
+## Lost
+- ...
+
+## Mutated
+- ...
+
+## Added
+- ...
+
+## Ambiguous
+- ...
 
 ## Convergence
-下一轮应该保持现状、修 Impl、修 Gate，还是修 Intent。
+下一轮应该保持现状、修 Impl、修 Gate，还是重新对齐 Intent。
 ```
 
 不要求机械输出完整结构。
 
-如果没有发现需要回归修正的内容，可以简短说明：
+如果两边基本一致，可以非常简短：
 
-> 当前 Reality 没有暴露需要向上修正的新事实；现有 Impl、Gate 与 Intent 仍然一致。
+> 最终 Reality 可以较稳定地重建出原始 Intent / Gate，没有发现重要语义漂移。
 
 # 不自动修复
 
@@ -375,10 +472,11 @@ Regression 默认只负责重新判断，不直接进入下一轮修改。
 
 它可以指出：
 
-- Impl 应如何重新考虑；
-- Gate 哪些地方需要重新对齐；
-- Intent 是否需要重新表述；
-- 下一轮应该从哪一层重新开始。
+- 哪些语义被保留；
+- 哪些内容丢失；
+- 哪些重点发生变形；
+- 哪些新目标是执行后新增的；
+- 下一轮应该从 Impl、Gate 还是 Intent 重新开始。
 
 但不要因为发现问题就：
 
@@ -388,7 +486,7 @@ Regression 默认只负责重新判断，不直接进入下一轮修改。
 - 自动扩大任务范围；
 - 自动进入新的 Implementation Plan。
 
-Back bookend 的职责，是恢复正确的高层理解。
+Back bookend 的职责，是重新建立正确的高层理解。
 
 后续是否继续修改，由用户或其他 Skill 决定。
 
@@ -396,21 +494,22 @@ Back bookend 的职责，是恢复正确的高层理解。
 
 - 不要把 Regression 做成 regression testing；
 - 不要把测试通过当作完成条件；
-- 不要默认原始 Intent / Gate / Plan 是权威；
+- 不要把原始 Intent / Gate 提供给 blind evaluator；
+- 不要让 evaluator 根据已知答案解释实现；
+- 不要把 Regression 做成普通 code review；
 - 不要只检查实现是否偏离 Plan；
 - 不要为了完整而重新审计整个项目；
-- 不要把执行过程中的路径依赖直接带入结论；
 - 不要为了制造“独立意见”而进行没有意义的多 Agent 辩论；
 - 不要把所有 Implementation 细节都上升为 Gate 或 Intent；
-- 不要在没有新事实时强行修改高层理解；
+- 不要在没有 drift 时强行制造差异；
 - 不要自动修复发现的问题。
 
 # 核心原则
 
-> **Regression 从实现后的 Reality 出发，沿 Impl → Gate → Intent 逆向回归。**
+> **Regression 是一次语义 round-trip：Intent → Implementation → Reconstructed Intent。**
 
-> **不要假设原 Plan、Gate 或 Intent 必然正确；执行产生的新事实可以反过来修正它们。**
+> **独立 evaluator 必须尽量不知道原始 Intent；信息不对称不是缺陷，而是测量机制。**
 
-> **Regression 应尽可能在独立或重置后的上下文中执行。它不是 Execution 的继续，而是一次重新建模。**
+> **Subagent 负责从 Reality 重建 Intent；Main Agent 负责拿它与原始 Intent / Gate 比对。**
 
-> **目标不是证明任务完成，而是让下一轮建立在更接近现实的理解上。**
+> **目标不是证明任务完成，而是判断实现之后，最初真正重要的东西是否还留在最终结果里。**
