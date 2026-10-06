@@ -19,7 +19,7 @@ Bookend 原意是“书挡”。
 | **intent** | 澄清为什么做、真正想保什么、什么更重要。 |
 | **gate** | 定义所有可接受方案必须满足的条件。 |
 | **impl** | 区分当前实现手段与真正的需求或约束。 |
-| **regression** | 实现后从 Reality 出发，沿 Impl → Gate → Intent 反向回归。 |
+| **regress** | 实现后从 Reality 出发，沿 Impl → Gate → Intent 反向回归。 |
 
 ## Modes
 

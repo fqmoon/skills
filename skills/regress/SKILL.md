@@ -1,12 +1,12 @@
 ---
-name: regression
+name: regress
 version: 1
 description: 在实现完成或基本完成后，从最终 Reality 盲重建其实际体现的 Intent / Gate / Impl，再由保留原始上下文的主 Agent 与原始理解进行回归比对；当实际实现复杂、影响面广、跨越多个结构边界，或执行后可能发生语义漂移时主动调用。
 ---
 
-# Regression
+# Regress
 
-Regression 是一次性的 **back-bookend action**。
+Regress 是一次性的 **back-bookend action**。
 
 它不负责证明代码“正确”，也不是回归测试、普通 Review、验收清单或测试执行器。
 
@@ -28,7 +28,7 @@ Execution
 Reality
 ```
 
-Regression 做一次语义 round-trip：
+Regress 做一次语义 round-trip：
 
 ```text
 Original Intent / Gate
@@ -51,7 +51,7 @@ Main Agent compares both sides
 
 > 经过真实实现以后，原来的高层语义是否仍然能从结果中被读回来。
 
-# 为什么需要 Regression
+# 为什么需要 Regress
 
 实现过程会产生路径依赖。
 
@@ -76,7 +76,7 @@ Implementation
 
 检查实现是否满足已知要求。
 
-Regression 故意反过来：
+Regress 故意反过来：
 
 ```text
 Implementation / Reality
@@ -98,11 +98,11 @@ Original Intent
 - 某个实现手段反而变成核心目标；
 - 新增目标悄悄取代原目标；
 
-都属于值得报告的 regression。
+都属于值得报告的 drift。
 
 # 核心原则：Blind Reconstruction
 
-Regression 的独立 evaluator **不应知道原始 Intent、Gate、Plan 或 Requirement discussion**。
+Regress 的独立 evaluator **不应知道原始 Intent、Gate、Plan 或 Requirement discussion**。
 
 这不是信息缺失，而是测量方法的一部分。
 
@@ -124,7 +124,7 @@ Final artifact / behavior
 Reconstructed semantic model
 ```
 
-然后由仍然保留原始上下文的 Main Agent 做真正的 Regression。
+然后由仍然保留原始上下文的 Main Agent 做真正的 Regress。
 
 # 1. Reality
 
@@ -160,7 +160,7 @@ Reconstructed semantic model
 - 主要结构边界；
 - 关键 trade-off。
 
-不要把 Regression 退化成代码 Review。
+不要把 Regress 退化成代码 Review。
 
 这里的目标不是评价实现质量，而是建立后续语义重建所需的最小技术模型。
 
@@ -208,15 +208,15 @@ Ambiguities
 
 # Context Isolation
 
-Regression **强烈建议使用独立 Subagent、新会话、fresh context、context reset 或等价机制执行 blind reconstruction**。
+Regress **强烈建议使用独立 Subagent、新会话、fresh context、context reset 或等价机制执行 blind reconstruction**。
 
 这里的隔离不是为了制造“第二人格”，也不只是为了减少 implementation history 的噪声。
 
 更重要的原因是：
 
-> **不知道原始 Intent，本身就是 Regression 的测量条件。**
+> **不知道原始 Intent，本身就是 Regress 的测量条件。**
 
-如果 evaluator 已经知道原始 Intent，它很容易围绕已知答案解释最终实现，Regression 就会退化成普通确认。
+如果 evaluator 已经知道原始 Intent，它很容易围绕已知答案解释最终实现，Regress 就会退化成普通确认。
 
 ## 给独立 evaluator 的输入
 
@@ -243,18 +243,18 @@ Regression **强烈建议使用独立 Subagent、新会话、fresh context、con
 
 ## 无法隔离上下文时
 
-如果当前环境不支持 Subagent、context reset 或新会话，可以在当前 Agent 中执行降级版 Regression。
+如果当前环境不支持 Subagent、context reset 或新会话，可以在当前 Agent 中执行降级版 Regress。
 
 但必须显式分离两个阶段：
 
 1. 暂时忽略原始 Intent / Gate，仅从 Reality 重建当前语义；
 2. 完成重建后，再恢复原始上下文做比对。
 
-如果做不到真正的信息隔离，应承认这是较弱的 Regression，而不是假装 blind reconstruction 没有被污染。
+如果做不到真正的信息隔离，应承认这是较弱的 Regress，而不是假装 blind reconstruction 没有被污染。
 
-# 5. Main-Agent Regression
+# 5. Main-Agent Regress
 
-真正的 Regression 在 Main Agent 中发生。
+真正的 Regress 在 Main Agent 中发生。
 
 Main Agent 同时拥有：
 
@@ -318,7 +318,7 @@ Reality 无法稳定支持某个高层判断。
 
 # 主动调用
 
-Agent **可以主动调用** `regression`，但只在执行后存在语义漂移风险时。
+Agent **可以主动调用** `regress`，但只在执行后存在语义漂移风险时。
 
 典型场景：
 
@@ -335,9 +335,9 @@ Agent **可以主动调用** `regression`，但只在执行后存在语义漂移
 
 # 与测试 / Verify 的关系
 
-Regression 不是测试 Skill。
+Regress 不是测试 Skill。
 
-测试、类型检查、运行验证、benchmark 等都可以作为 Reality 的证据来源，但它们不是 Regression 的目标。
+测试、类型检查、运行验证、benchmark 等都可以作为 Reality 的证据来源，但它们不是 Regress 的目标。
 
 Verify 更接近：
 
@@ -347,7 +347,7 @@ Known requirement
 Does implementation satisfy it?
 ```
 
-Regression 更接近：
+Regress 更接近：
 
 ```text
 Final implementation
@@ -369,13 +369,13 @@ Intent preserved
 
 # 与 Impact 的关系
 
-`impact` 和 `regression` 分别位于执行的两侧。
+`impact` 和 `regress` 分别位于执行的两侧。
 
 ```text
 Impact
 = 执行前，调查变化可能怎样传播
 
-Regression
+Regress
 = 执行后，从最终结果重建语义，再与原始语义比对
 ```
 
@@ -407,11 +407,11 @@ Compare with original
 
 `bullshit` 负责检查一个当前 mental model 是否站得住脚。
 
-`regression` 则专门处理：
+`regress` 则专门处理：
 
 > 最终 artifact 还能不能重新表达最初真正想解决的问题。
 
-Regression 可以借用类似的判断方式，但不要退化成普通 premise recovery 或 mental-model review。
+Regress 可以借用类似的判断方式，但不要退化成普通 premise recovery 或 mental-model review。
 
 # 输出
 
@@ -436,10 +436,10 @@ Regression 可以借用类似的判断方式，但不要退化成普通 premise 
 - ...
 ```
 
-Main Agent 再输出 Regression：
+Main Agent 再输出 Regress：
 
 ```markdown
-# Regression
+# Regress
 
 ## Preserved
 - ...
@@ -468,7 +468,7 @@ Main Agent 再输出 Regression：
 
 # 不自动修复
 
-Regression 默认只负责重新判断，不直接进入下一轮修改。
+Regress 默认只负责重新判断，不直接进入下一轮修改。
 
 它可以指出：
 
@@ -492,11 +492,11 @@ Back bookend 的职责，是重新建立正确的高层理解。
 
 # 不要做什么
 
-- 不要把 Regression 做成 regression testing；
+- 不要把 Regress 做成 回归测试；
 - 不要把测试通过当作完成条件；
 - 不要把原始 Intent / Gate 提供给 blind evaluator；
 - 不要让 evaluator 根据已知答案解释实现；
-- 不要把 Regression 做成普通 code review；
+- 不要把 Regress 做成普通 code review；
 - 不要只检查实现是否偏离 Plan；
 - 不要为了完整而重新审计整个项目；
 - 不要为了制造“独立意见”而进行没有意义的多 Agent 辩论；
@@ -506,7 +506,7 @@ Back bookend 的职责，是重新建立正确的高层理解。
 
 # 核心原则
 
-> **Regression 是一次语义 round-trip：Intent → Implementation → Reconstructed Intent。**
+> **Regress 是一次语义 round-trip：Intent → Implementation → Reconstructed Intent。**
 
 > **独立 evaluator 必须尽量不知道原始 Intent；信息不对称不是缺陷，而是测量机制。**
 
