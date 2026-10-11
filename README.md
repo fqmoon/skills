@@ -1,8 +1,6 @@
 # Agent Skills
 
-一组用于 Human–Agent 协作的软件工程 Skills。
-
-这个仓库包含几类不同性质的 Skills：**Bookend Skills、协作 Modes、认知模型和一次性 Actions**。它们可以独立使用，也可以按当前任务需要组合；不构成一条固定 Workflow。
+这个仓库包含几类不同性质的 Skills：**Bookend Skills、协作 Modes、认知模型、一次性 Actions 和环境管理 Skills**。它们可以独立使用，也可以按当前任务需要组合；不构成一条固定 Workflow。
 
 ## Bookend Skills
 
@@ -49,6 +47,14 @@ Actions 是针对当前问题执行的一次性分析、转换或校正动作。
 | **premise** | 恢复当前判断所需的最小共同前提。 |
 | **up** | 将陷入细节的讨论提升到更合适的抽象层级。 |
 | **bullshit** | 检查当前 mental model 中的错误前提、概念混淆与因果跳跃。 |
+
+## Environment
+
+环境管理 Skills 围绕用户意图与现场环境工作，不限定固定流程。
+
+| Skill | 作用 |
+|---|---|
+| **[myenv](skills/myenv/SKILL.md)** | 调查软件版本与环境定制，比较差异，生成或维护环境快照，并按授权适配或还原个人环境。 |
 
 ## Installation
 
