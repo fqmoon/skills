@@ -1,7 +1,7 @@
 ---
 name: concretize
-version: 3
-description: 将已经明确的需求、Intent、Gate、高层 Impl 或 Plan，结合当前 repository 的真实实现与 change surface，具体化为可直接用于后续执行的 Implementation Plan；在选择技术路线前先判断变化传播范围，必要时调用 impact 进行结构性调查，但不执行修改。
+version: 4
+description: 将已经明确的需求、Intent、Gate、高层 Impl 或 Plan，结合当前 repository 的真实实现与 change surface，具体化为可直接用于后续执行的 Implementation Plan；在选择技术路线前先判断变化传播范围，必要时调用 impact 进行结构性调查，但不执行业务代码修改；将 Plan 落盘到项目。
 ---
 
 # Concretize
@@ -158,15 +158,33 @@ Notes:
 阶段应尽可能形成可理解、可检查的中间状态，
 但不要求每个阶段都能独立发布。
 
-# 输出
+# 输出与落盘
 
-输出一份面向执行 Agent 的 Implementation Plan。
+输出一份面向执行 Agent 的 Implementation Plan，**必须将其写入项目文件**，而不是只在对话中展示。
+
+Plan 路径的选择顺序：
+
+1. 用户明确指定的路径；
+2. 项目已有的 Execution Plan 存放约定；
+3. 默认回退到 `<repo>/docs/progress/<task-slug>.md`。
+
+任务 slug 应简短稳定、能区分并行任务。若目标文件已有内容，先检查是否为当前任务的 Plan；不要覆盖无关计划。文件创建完成后告知用户路径。
+
+生成 Plan 时保留轻量进度区（Current / Next）和各 Phase 的 Status，初始状态通常为 `pending`，尚未开始时 Current 可标为未开始。不应伪造已执行结果。
+
+**执行期的进度更新由 `progress` 负责**：阶段性任务完成、进入人工验收、人工验收结束以及返回用户前存在未登记进展时主动同步；也允许用户手动调用 `/progress`。Progress 原地写入现有 Plan，避免额外状态文件和执行会话切换。
+
+推荐结构：
 
 推荐结构：
 
 # Implementation Plan
 
 ## Goal
+
+## Progress
+- Current: 未开始
+- Next: Phase 1
 
 ## Relevant Intent / Gate / Constraints
 
@@ -179,9 +197,11 @@ Notes:
 ## Phases
 
 ### Phase 1
+Status: pending
 ...
 
 ### Phase 2
+Status: pending
 ...
 
 ## Cross-cutting Changes
@@ -220,7 +240,7 @@ Not obviously local / structurally uncertain
 
 本 Skill 不负责：
 
-- 修改代码；
+- 修改业务代码（Plan 文件落盘除外）；
 - 创建 worktree；
 - 调用 Subagent；
 - 执行测试；
