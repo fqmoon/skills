@@ -1,6 +1,6 @@
 # Agent Skills
 
-这个仓库包含几类不同性质的 Skills：**Bookend Skills、协作 Modes、认知模型、一次性 Actions 和环境管理 Skills**。它们可以独立使用，也可以按当前任务需要组合；不构成一条固定 Workflow。
+这个仓库包含几类不同性质的 Skills：**Bookend Skills、协作 Modes、认知模型、执行式 Actions 和环境管理 Skills**。它们可以独立使用，也可以按当前任务需要组合；不构成一条固定 Workflow。
 
 ## Bookend Skills
 
@@ -38,12 +38,13 @@ Cognition Skills 是可以贯穿任务持续使用的认知模型。
 
 ## Actions
 
-Actions 是针对当前问题执行的一次性分析、转换或校正动作。
+Actions 是针对当前问题执行的分析、转换、校正或状态同步动作。
 
 | Skill | 作用 |
 |---|---|
 | **impact** | 调查拟议变化的真实影响范围与传播路径。 |
-| **concretize** | 将高层需求、Intent、Gate 或 Impl 具体化为 Implementation Plan。 |
+| **concretize** | 将高层需求、Intent、Gate 或 Impl 具体化为 Implementation Plan，并落盘到项目；默认位于 `docs/progress/`。 |
+| **progress** | 主动或手动同步阶段进度与人工验收状态，原地更新现有 Execution Plan。 |
 | **premise** | 恢复当前判断所需的最小共同前提。 |
 | **up** | 将陷入细节的讨论提升到更合适的抽象层级。 |
 | **bullshit** | 检查当前 mental model 中的错误前提、概念混淆与因果跳跃。 |
