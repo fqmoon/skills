@@ -1,6 +1,6 @@
 ---
 name: concretize
-version: 4
+version: 5
 description: 将已经明确的需求、Intent、Gate、高层 Impl 或 Plan，结合当前 repository 的真实实现与 change surface，具体化为可直接用于后续执行的 Implementation Plan；在选择技术路线前先判断变化传播范围，必要时调用 impact 进行结构性调查，但不执行业务代码修改；将 Plan 落盘到项目。
 ---
 
@@ -172,9 +172,11 @@ Plan 路径的选择顺序：
 
 生成 Plan 时保留轻量进度区（Current / Next）和各 Phase 的 Status，初始状态通常为 `pending`，尚未开始时 Current 可标为未开始。不应伪造已执行结果。
 
-**执行期的进度更新由 `progress` 负责**：阶段性任务完成、进入人工验收、人工验收结束以及返回用户前存在未登记进展时主动同步；也允许用户手动调用 `/progress`。Progress 原地写入现有 Plan，避免额外状态文件和执行会话切换。
+**每份落盘的 Implementation Plan 必须直接包含执行期的 Progress 指令**，不能仅在本 Skill 中提及，也不能假定后续 Agent 读过本 Skill。将下面的规则写入 Plan 的 `## Execution Notes`（或语义等价的执行指令段），并明确目标就是当前 Plan 文件：
 
-推荐结构：
+> 执行 Agent 必须在完成任何阶段性任务后主动调用 `progress`，将实际结果与下一步原地登记到本 Implementation Plan；进入人工验收前登记 `awaiting-human`，人工验收结束后依据用户反馈再次调用 `progress` 更新状态。每次返回用户前，若有尚未登记的阶段性进展，必须先调用 `progress` 同步。用户也可以手动调用 `/progress`。无实质状态变化时不重复写入。不要求为进度登记中断连续执行或另开 Agent。
+
+`concretize` 只负责把规则和初始状态写入 Plan，不在生成 Plan 时调用 `progress` 伪造进度。
 
 推荐结构：
 
@@ -211,7 +213,7 @@ Status: pending
 明确本轮不解决的事项。
 
 ## Execution Notes
-仅记录执行阶段必须知道、但不值得独立形成 Phase 的事项。
+必须包含上述 Progress 执行指令；此外仅记录执行阶段必须知道、但不值得独立形成 Phase 的事项。
 
 # 与 Impact 的关系
 
