@@ -1,7 +1,7 @@
 ---
 name: impact
 version: 1
-description: 基于当前 repository 调查一个拟议变化的真实影响范围，重点分析 change surface、数据链路、模块边界、ownership、lifecycle、持久化、API / contract、调度与兼容性传播；用于在实施前判断“这个变化实际上会牵动什么”，但不负责选择最终技术路线或生成 Implementation Plan。Agent 在表面改动范围可能低估真实传播时可以主动调用。
+description: 基于当前 repository 调查一个拟议变化的真实影响范围，包括 change surface、数据链路、结构边界、ownership、lifecycle、contract、兼容性，以及相关 ADR、项目文档与 Test/Fixture 所体现的长期设计和行为约束；用于实施前识别传播范围及潜在语义冲突，不负责决定技术路线或维护长期资产。
 ---
 
 # Impact
@@ -57,6 +57,8 @@ Impact 必须基于真实 repository，而不是只根据需求文字猜测。
 - 哪些 API / contract 将直接或间接受到影响；
 - 哪些调度、异步或资源生命周期会被牵动；
 - 哪些看似相关的部分实际上不会受到影响。
+
+在相关变化可能影响设计理由或已有行为时，还应按需检索相关 ADR、项目实际使用的设计/API 文档以及 Test/Fixture。只调查与当前 Change 有关的长期约束，不把所有文档或测试读一遍。
 
 不要为了“理解整个项目”无边界搜索。
 
@@ -146,6 +148,22 @@ Persistence / Output
 
 不要因为现有 API 已经存在，就把它自动当成 Gate。
 这里只描述变化影响，不决定是否必须保留。
+
+## Historical Intent / Behavioral Constraints
+
+除实现传播外，还应识别当前 Change 可能触及的长期语义与行为约束。
+
+重点调查：
+
+- 相关 ADR 的 Intent、Decision、Rationale 和成立前提；
+- 项目实际使用的设计、API 或用户文档所表达的契约；
+- 相关 Test/Fixture 所保护的场景、可观察行为与不变量；
+- 本次 Change 是否可能使旧决策失效、使既有断言过时，或破坏仍有效的行为要求；
+- 现有文档、测试与代码之间是否存在足以影响本次实施判断的分歧。
+
+将这些内容作为影响证据，而不是自动视为不可修改的 Gate。ADR 可能过时，测试也可能固化历史 Bug；发现冲突时应报告原因与待决边界，不擅自将旧 Impl 升级为长期约束。
+
+Impact 只识别可能受影响的长期约束，**不负责修订 ADR、改写测试断言或运行完整测试**。涉及长期资产有效性的系统性校对属于 `evolve`。
 
 # 架构影响
 
@@ -281,6 +299,10 @@ Impact 调查过程中仍应尊重这些语义区别。
 - API / contract；
 - scheduling；
 - compatibility。
+
+## Historical Constraints（如相关）
+
+简要列出涉及的 ADR、项目契约或 Fixture、潜在语义冲突与需要重新裁决的约束。不相关时省略，不为输出完整而制造风险。
 
 ## Impact Level
 
