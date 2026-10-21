@@ -21,12 +21,13 @@ Bookend 原意是“书挡”。
 
 ## Modes
 
-Modes 定义用户与 Agent 在当前会话中的协作关系。
+Modes 定义当前会话中持续生效的协作关系或工作目标。
 
 | Skill | 作用 |
 |---|---|
 | **require** | 用户控制需求、方向和重要取舍；Agent 默认承担更多下层调查与实现判断。 |
 | **drive** | 用户持续参与方向与关键 Implementation 判断，与 Agent 协作推进。 |
+| **evolve** | 持续交互式地校对项目演化：从 ADR、Test、Code 与文档重建 Intent，主动提出建议，维护有效的长期约束并验证回归。 |
 
 ## Cognition
 
@@ -42,7 +43,7 @@ Actions 是针对当前问题执行的分析、转换、校正或状态同步动
 
 | Skill | 作用 |
 |---|---|
-| **impact** | 调查拟议变化的真实影响范围与传播路径。 |
+| **impact** | 调查拟议变化的传播路径，以及相关 ADR、Test 和项目契约可能受到的影响。 |
 | **concretize** | 将高层需求、Intent、Gate 或 Impl 具体化为 Implementation Plan，并落盘到项目；默认位于 `docs/progress/`。 |
 | **progress** | 主动或手动同步阶段进度与人工验收状态，原地更新现有 Execution Plan。 |
 | **premise** | 恢复当前判断所需的最小共同前提。 |
