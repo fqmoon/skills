@@ -1,6 +1,6 @@
 # Agent Skills
 
-这个仓库包含几类不同性质的 Skills：**Bookend Skills、协作 Modes、认知模型、执行式 Actions 和环境管理 Skills**。它们可以独立使用，也可以按当前任务需要组合；不构成一条固定 Workflow。
+这个仓库包含几类不同性质的 Skills：**Bookend Skills、协作 Modes、认知模型、执行策略 Policies、执行式 Actions 和环境管理 Skills**。它们可以独立使用，也可以按当前任务需要组合；不构成一条固定 Workflow。
 
 ## Bookend Skills
 
@@ -36,7 +36,14 @@ Cognition Skills 是可以贯穿任务持续使用的认知模型。
 | Skill | 作用 |
 |---|---|
 | **terminology** | 主动辨析术语歧义与概念混淆，建议更准确的名称；默认只读 `docs/CONTEXT.md` 及其链接的术语文件，重要术语经用户授权后保存。 |
-| **debt** | 判断已知问题是否可以有意识地延迟处理。 |
+
+## Policies
+
+Policies 定义执行中的处置原则，不规定固定的任务步骤。
+
+| Skill | 作用 |
+|---|---|
+| **debt** | 允许非阻塞问题有意识地延迟处理，控制任务闭环时机，避免防御性工作扩大主要任务范围。 |
 
 ## Actions
 
