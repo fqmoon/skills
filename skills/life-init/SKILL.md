@@ -79,7 +79,7 @@ git -C "$ROOT" -c user.name=life -c user.email=life@localhost commit -m "..."
 
 # 定时提交（兜底）
 
-只兜底，不代替写作时的提交 —— 消息没有理由的历史等于没历史。真正的提交由 `life-save` 在写完时做，消息带结论摘要；这里只处理「有改动但没人提交」的情况。
+**提交的唯一入口就是这里。** `life-save` 只写盘不提交，靠这条每天把当天的改动收进去。代价是消息只有文件清单、没有理由 —— 理由落在每次的收尾汇报里。
 
 脚本放 `~/.hermes/scripts/life_auto_commit.sh`：
 
