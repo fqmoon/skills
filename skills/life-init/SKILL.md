@@ -1,10 +1,13 @@
 ---
 name: life-init
 version: 1
-description: 装配第二大脑：检查并补齐根目录、入口、git 与定时提交。可重入，写坏/换机重跑即可。
+description: 仅限用户显式调用，禁止模型主动调用。装配第二大脑：检查并补齐根目录、入口、git 与定时推送。可重入，写坏/换机重跑即可。
+disable-model-invocation: true
 ---
 
 # Life Init
+
+**仅限用户显式调用，禁止模型主动调用。** 它会建目录、init 仓库、注册 cron —— 三类都是「一次装配」的动作，不该由模型在任务中途顺手触发。
 
 第二大脑（`~/life`）的**装配器**。
 
