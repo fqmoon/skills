@@ -81,7 +81,20 @@ git -C "$ROOT" -c user.name=life -c user.email=life@localhost commit -m "..."
 
 # 定时提交（兜底）
 
-**消息格式只有一种：`auto: <改动文件列表>`**（空格分隔；`core.quotepath=false` 让中文名不被转义）。没有理由段 —— 理由在收尾汇报里，不在 commit 里。
+**消息格式：第一行一句话，其后分条。**
+
+```text
+改：`life-load` 检查项加了「状态打架」这一条
+- 同一件事两处说法不再放过，按状态不一致处理
+- 顺带把「不是日记」拆成独立检查项
+- 文件：README.md
+```
+
+- 第一行是**主题**（一句话说这次改了什么），所以 `git log --oneline` 就是一份可读的历史；
+- 后面分条，**每条说一件事**，不要写成文件清单；
+- 末行「文件：」由脚本追加，不用手写；
+- 消息由 `life-save` 收尾时写进 `<root>/.commit-msg`（**不进版本库**，已在 `.gitignore`），cron 提交时读取并删除；
+- 没有 `.commit-msg` 时（手工改文件、迁移等），脚本自造一句 `auto: 改动 N 个文件`，正文照样列文件。
 
 **提交与推送的唯一入口就是这里。** `life-save` 只写盘不提交，靠这条每天把当天的改动收进去。代价是消息只有文件清单、没有理由 —— 理由落在每次的收尾汇报里。
 
@@ -89,21 +102,54 @@ git -C "$ROOT" -c user.name=life -c user.email=life@localhost commit -m "..."
 
 ```bash
 #!/usr/bin/env bash
-# 无改动 = 静默；失败 = 非 0 退出（让 cron 报警，而不是静默烂掉）
+# life 自动提交 + 推送：版本管理唯一的入口。
+# life-save 只写盘、只预备消息（.commit-msg），不提交。
+# 消息格式：第一行一句话，其后分条 —— 让 git log 直接可当历史读。
+# 无改动 = 静默；失败 = 非 0 退出（让 cron 报警，而不是静默烂掉）。
 set -u
 ROOT="${LIFE_ROOT:-$HOME/life}"
 [ -d "$ROOT/.git" ] || exit 0
+
 gc() { git -C "$ROOT" -c user.name=life -c user.email=life@localhost -c core.quotepath=false "$@"; }
 
+# 1. 暂存；无改动就静默（顺手清掉可能过期的待提交消息）
 gc add -A
-if ! gc diff --cached --quiet; then
-  files=$(gc diff --cached --name-only | tr '\n' ' ')
-  gc commit -q -m "auto: $files" || { echo "[life] commit 失败：$files"; exit 1; }
-  echo "[life] commit: $files"
+if gc diff --cached --quiet; then
+  rm -f "$ROOT/.commit-msg"
+  exit 0
 fi
 
-gc remote get-url origin >/dev/null 2>&1 || exit 0
-gc push -q origin HEAD 2>&1 || { echo "[life] push 失败"; exit 1; }
+# 2. 取消息：life-save 预备的 .commit-msg，缺省时自动生成一句话
+MSG="$ROOT/.commit-msg"
+if [ -s "$MSG" ]; then
+  subject=$(head -n 1 "$MSG" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
+  body=$(tail -n +2 "$MSG")
+else
+  n=$(gc diff --cached --name-only | wc -l | tr -d ' ')
+  subject="auto: 改动 ${n} 个文件"
+  body=""
+fi
+
+# 3. 正文永远带上文件清单（分条）
+files=$(gc diff --cached --name-only | sed 's/^/- 文件：/')
+commit_body=$(printf '%s\n%s\n' "$body" "$files" | sed '/^[[:space:]]*$/d')
+
+if ! gc commit -q -m "$subject" -m "$commit_body"; then
+  echo "[life] commit 失败：$subject"
+  exit 1
+fi
+rm -f "$MSG"
+echo "[life] commit: $subject"
+
+# 4. 有远端就推（本地领先也推，兜住上次推送失败）
+if gc remote get-url origin >/dev/null 2>&1; then
+  if ! out=$(gc push -q origin HEAD 2>&1); then
+    echo "[life] push 失败：$out"
+    exit 1
+  fi
+fi
+
+exit 0
 ```
 
 现成的脚本在 `~/.hermes/scripts/life_auto_commit.sh`，不要重写，只补缺。
