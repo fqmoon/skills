@@ -87,16 +87,11 @@ git -C "$ROOT" -c user.name=life -c user.email=life@localhost commit -m "..."
 
 # 定时提交
 
-**提交与推送的唯一入口是脚本；写提交说明的是 cron 的 agent 任务。** 两条 job，顺序不能反：
+**一条 job：每天 06:00，agent 跑。** 它读 `git diff` → 写 `.commit-msg`（一句话 + 分条）→ 调下面的脚本提交推送。
 
-| 时间 | 类型 | 干什么 |
-|---|---|---|
-| 06:00 | agent | 读 `git diff` → 写 `.commit-msg`（一句话 + 分条）→ 调下面的脚本提交推送 |
-| 07:00 | no-agent | 纯脚本兜底：万一 06:00 那条失败或没写消息，仍有提交 |
+**为什么必须是 agent 而不是脚本**：提交按天聚合，一次里可能同时有增、改、归档，只有看过 diff 才写得出这句话。脚本拼不出来。
 
-**为什么 06:00 必须是 agent**：提交按天聚合，一次里可能同时有增、改、归档，只有看过 diff 才写得出这句话。脚本拼不出来。
-
-**为什么 07:00 还要一条**：agent 任务会失败（模型超时、调用出错）。纯脚本不花钱、只做机械事，兜住漏。
+**不设兜底 job。** agent 失败就那天不提，第二天连着一块提 —— 消息仍然据实描述 diff，所以历史不会错，只是粒度变粗。
 
 脚本放 `~/.hermes/scripts/life_auto_commit.sh`：
 
@@ -154,14 +149,11 @@ exit 0
 注册：
 
 ```bash
-# 06:00 —— 写消息 + 提交（agent）
 hermes cron create "0 6 * * *" "<prompt，见下>" --name "life 提交" \
   --deliver local --failure-deliver origin
-
-# 07:00 —— 纯脚本兜底，不花钱
-hermes cron create "0 7 * * *" --name "life 兜底提交" --no-agent \
-  --script life_auto_commit.sh --deliver local --failure-deliver origin
 ```
+
+**脚本不在 job 上挂**（不要 `--script`）：它必须由 agent 在看完 diff、写完消息之后自己调；挂上去会变成脚本先提交、agent 再描述，顺序就反了。
 
 06:00 那条的 prompt 要点（**照抄，别自由发挥**）：
 
@@ -175,7 +167,7 @@ hermes cron create "0 7 * * *" --name "life 兜底提交" --no-agent \
 消息里出现 update、整理这类无信息量的词。
 ```
 
-**成本**：06:00 每天一次模型调用（一轮）；07:00 不花钱，无改动静默。
+**成本**：每天一次模型调用（一轮）。无改动时 agent 只回一句「无改动」，脚本静默。
 
 # 不负责
 
