@@ -4,6 +4,9 @@ version: 2
 description: 检查 memo 资料树的状态，并检索与当前目标相关的既有结论；在开始一项任务、需要回顾此前积累、或准备写入前核查现状时调用，也可由用户手动调用 /memo-load。只读 —— 不改任何资料内容，只在 hits.md 记一行装载痕迹。
 ---
 
+> **归档（2026-11-08）：由 `life` 上位替代** —— `life-init` / `life-load` / `life-save`。资料树迁至 `~/life`（`LIFE_ROOT`）。
+
+
 # Memo Load
 
 memo 资料树的**读取器** —— 它做两件事：
