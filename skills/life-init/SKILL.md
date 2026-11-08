@@ -85,24 +85,18 @@ git -C "$ROOT" -c user.name=life -c user.email=life@localhost commit -m "..."
 - 凭据走 `gh auth git-credential`（`gh auth setup-git` 一次即可）。**push 前先确认树里没有凭据值** —— 只记位置可以（`~/.cloudflared/...`），记值不行。
 - 远端是**私有不等于安全**：一推上去就随历史走，删要重写历史。所以不确定的东西别推。
 
-# 定时提交（兜底）
+# 定时提交
 
-**消息格式：第一行一句话，其后分条。**
+**提交与推送的唯一入口是脚本；写提交说明的是 cron 的 agent 任务。** 两条 job，顺序不能反：
 
-```text
-`life-load` 的检查项加了「状态打架」
-- 同一件事两处说法不再放过，按状态不一致处理
-- 顺带把「不是日记」拆成独立检查项
-- 文件：README.md
-```
+| 时间 | 类型 | 干什么 |
+|---|---|---|
+| 06:00 | agent | 读 `git diff` → 写 `.commit-msg`（一句话 + 分条）→ 调下面的脚本提交推送 |
+| 07:00 | no-agent | 纯脚本兜底：万一 06:00 那条失败或没写消息，仍有提交 |
 
-- 第一行是**主题**（一句话说这次改了什么），所以 `git log --oneline` 就是一份可读的历史；
-- 后面分条，**每条说一件事**，不要写成文件清单；
-- 末行「文件：」由脚本追加，不用手写；
-- 消息由 `life-save` 收尾时写进 `<root>/.commit-msg`（**不进版本库**，已在 `.gitignore`），cron 提交时读取并删除；
-- 没有 `.commit-msg` 时（手工改文件、迁移等），脚本自造一句 `改动 N 个文件`，并注明是定时器生成，正文照样列文件。
+**为什么 06:00 必须是 agent**：提交按天聚合，一次里可能同时有增、改、归档，只有看过 diff 才写得出这句话。脚本拼不出来。
 
-**提交与推送的唯一入口就是这里。** `life-save` 只写盘、只预备消息，靠这条每天把当天的改动收进去。所以历史的可读性全押在 `life-save` 写的那句话上 —— 它不写，就只剩「改动 N 个文件」。
+**为什么 07:00 还要一条**：agent 任务会失败（模型超时、调用出错）。纯脚本不花钱、只做机械事，兜住漏。
 
 脚本放 `~/.hermes/scripts/life_auto_commit.sh`：
 
@@ -156,20 +150,32 @@ if gc remote get-url origin >/dev/null 2>&1; then
 fi
 
 exit 0
-```
 
-现成的脚本在 `~/.hermes/scripts/life_auto_commit.sh`，不要重写，只补缺。
-
-注册（`--no-agent`，不经 LLM，不花钱）：
+注册：
 
 ```bash
-hermes cron create "0 6 * * *" --name "life 自动提交" --no-agent \
+# 06:00 —— 写消息 + 提交（agent）
+hermes cron create "0 6 * * *" "<prompt，见下>" --name "life 提交" \
+  --deliver local --failure-deliver origin
+
+# 07:00 —— 纯脚本兜底，不花钱
+hermes cron create "0 7 * * *" --name "life 兜底提交" --no-agent \
   --script life_auto_commit.sh --deliver local --failure-deliver origin
 ```
 
-- `--deliver local`：正常跑不打扰；
-- `--failure-deliver origin`：**push 失败必须让人知道** —— 否则它会每天静默失败，你以为在备份；
-- **cron 挂在注册它时的那个 profile 下**。现在只有 `default`，换 profile / 新开 profile 时这条不会跟着走，重跑本 skill 补齐。
+06:00 那条的 prompt 要点（**照抄，别自由发挥**）：
+
+```text
+1. 在 ~/life 执行 git status --short 与 git diff，看今天的实际改动。
+2. 没有改动就只回复「无改动」。
+3. 有改动则写 ~/life/.commit-msg：第一行一句话说清这一批改了什么（不写前缀、不写日期）；
+   其后分条，每条以动词开头（改写/新增/归档/删除），一条一件事；只描述真实改动，不许臆造。
+4. 执行 bash ~/.hermes/scripts/life_auto_commit.sh，回复它的输出。
+禁止：改 ~/life 下任何 .md；自己 git commit / git push（必须走脚本）；
+消息里出现 update、整理这类无信息量的词。
+```
+
+**成本**：06:00 每天一次模型调用（一轮）；07:00 不花钱，无改动静默。
 
 # 不负责
 
