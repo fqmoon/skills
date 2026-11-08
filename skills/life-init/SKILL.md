@@ -81,7 +81,7 @@ git -C "$ROOT" -c user.name=life -c user.email=life@localhost commit -m "..."
 
 # 定时提交（兜底）
 
-**消息格式：第一行一句话，其后分条。**
+**消息格式：第一行 `<前缀>：<一句话>`，其后分条。**（前缀 `增/改/归/删/auto` 的含义见 `life-save`）
 
 ```text
 改：`life-load` 检查项加了「状态打架」这一条
