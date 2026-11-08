@@ -155,7 +155,7 @@ git -C "$ROOT" -c user.name=life -c user.email=life@localhost -c core.quotepath=
   commit -m "<第一行：一句话>" -m "<其后：分条>"
 ```
 
-**推送不在这里做** —— 06:00 的 job 只负责把已提交的东西推上去。
+**推送不在这里做** —— 定时任务只负责把已提交的东西推上去（见 `life-init`）。
 
 ## 消息格式
 
@@ -189,7 +189,7 @@ git -C "$ROOT" -c user.name=life -c user.email=life@localhost -c core.quotepath=
 
 - 不做「定期通读整棵树」的巡检 —— 健康靠每次收尾做对 + 结束汇报；代价是漂移没有兜底；
 - 不记录任务进度（那属于 `progress` / 项目的 Execution Plan）；
-- **不推送** —— 推送归 cron（`life-init` 装的 06:00 job）；
+- **不推送** —— 推送归定时任务（`life-init` 负责装配）；
 - 不注册 cron、不配远端（那是 `life-init`）；
 - 不写 git 消息以外的事件史。
 
