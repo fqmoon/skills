@@ -70,38 +70,51 @@ git -C "$ROOT" -c user.name=life -c user.email=life@localhost commit -m "..."
 
 `.gitignore` 至少含：`*.swp`、`.DS_Store`。
 
-**远端是可选项，默认不配。** 这是两个不同需求：
+**远端是必需项** —— 提交与推送都由 cron 负责（`life-save` 只写盘），所以没有远端时「防丢」这半边是空的。
 
-- **看演变** → 本地仓库够了；
-- **防丢** → 才需要私有远端。
-
-配远端前必须确认树里没有凭据类内容（token、私钥、密码）。**Skill 自己判断不构成复制授权** —— 要不要推、推到哪，由用户当场定。
+- 私有仓库，默认 `fqmoon/life`：
+  ```bash
+  gh repo create fqmoon/life --private --source="$ROOT" --remote=origin --push
+  ```
+- 凭据走 `gh auth git-credential`（`gh auth setup-git` 一次即可）。**push 前先确认树里没有凭据值** —— 只记位置可以（`~/.cloudflared/...`），记值不行。
+- 远端是**私有不等于安全**：一推上去就随历史走，删要重写历史。所以不确定的东西别推。
 
 # 定时提交（兜底）
 
-**提交的唯一入口就是这里。** `life-save` 只写盘不提交，靠这条每天把当天的改动收进去。代价是消息只有文件清单、没有理由 —— 理由落在每次的收尾汇报里。
+**提交与推送的唯一入口就是这里。** `life-save` 只写盘不提交，靠这条每天把当天的改动收进去。代价是消息只有文件清单、没有理由 —— 理由落在每次的收尾汇报里。
 
 脚本放 `~/.hermes/scripts/life_auto_commit.sh`：
 
 ```bash
 #!/usr/bin/env bash
+# 无改动 = 静默；失败 = 非 0 退出（让 cron 报警，而不是静默烂掉）
+set -u
 ROOT="${LIFE_ROOT:-$HOME/life}"
 [ -d "$ROOT/.git" ] || exit 0
-git -C "$ROOT" add -A
-git -C "$ROOT" diff --cached --quiet && exit 0   # 无改动 = 静默，不产生空 commit
-n=$(git -C "$ROOT" diff --cached --name-only | tr '\n' ' ')
-git -C "$ROOT" -c user.name=life -c user.email=life@localhost \
-  commit -q -m "auto: $n"
+gc() { git -C "$ROOT" -c user.name=life -c user.email=life@localhost "$@"; }
+
+gc add -A
+if ! gc diff --cached --quiet; then
+  files=$(gc diff --cached --name-only | tr '\n' ' ')
+  gc commit -q -m "auto: $files" || { echo "[life] commit 失败：$files"; exit 1; }
+  echo "[life] commit: $files"
+fi
+
+gc remote get-url origin >/dev/null 2>&1 || exit 0
+gc push -q origin HEAD 2>&1 || { echo "[life] push 失败"; exit 1; }
 ```
+
+现成的脚本在 `~/.hermes/scripts/life_auto_commit.sh`，不要重写，只补缺。
 
 注册（`--no-agent`，不经 LLM，不花钱）：
 
 ```bash
 hermes cron create "0 6 * * *" --name "life 自动提交" --no-agent \
-  --script life_auto_commit.sh --deliver local
+  --script life_auto_commit.sh --deliver local --failure-deliver origin
 ```
 
-- `--deliver local`：只在有输出时留档，不打扰；
+- `--deliver local`：正常跑不打扰；
+- `--failure-deliver origin`：**push 失败必须让人知道** —— 否则它会每天静默失败，你以为在备份；
 - **cron 挂在注册它时的那个 profile 下**。现在只有 `default`，换 profile / 新开 profile 时这条不会跟着走，重跑本 skill 补齐。
 
 # 不负责
