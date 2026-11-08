@@ -81,6 +81,8 @@ git -C "$ROOT" -c user.name=life -c user.email=life@localhost commit -m "..."
 
 # 定时提交（兜底）
 
+**消息格式只有一种：`auto: <改动文件列表>`**（空格分隔；`core.quotepath=false` 让中文名不被转义）。没有理由段 —— 理由在收尾汇报里，不在 commit 里。
+
 **提交与推送的唯一入口就是这里。** `life-save` 只写盘不提交，靠这条每天把当天的改动收进去。代价是消息只有文件清单、没有理由 —— 理由落在每次的收尾汇报里。
 
 脚本放 `~/.hermes/scripts/life_auto_commit.sh`：
@@ -91,7 +93,7 @@ git -C "$ROOT" -c user.name=life -c user.email=life@localhost commit -m "..."
 set -u
 ROOT="${LIFE_ROOT:-$HOME/life}"
 [ -d "$ROOT/.git" ] || exit 0
-gc() { git -C "$ROOT" -c user.name=life -c user.email=life@localhost "$@"; }
+gc() { git -C "$ROOT" -c user.name=life -c user.email=life@localhost -c core.quotepath=false "$@"; }
 
 gc add -A
 if ! gc diff --cached --quiet; then
