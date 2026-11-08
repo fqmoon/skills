@@ -85,89 +85,37 @@ git -C "$ROOT" -c user.name=life -c user.email=life@localhost commit -m "..."
 - 凭据走 `gh auth git-credential`（`gh auth setup-git` 一次即可）。**push 前先确认树里没有凭据值** —— 只记位置可以（`~/.cloudflared/...`），记值不行。
 - 远端是**私有不等于安全**：一推上去就随历史走，删要重写历史。所以不确定的东西别推。
 
-# 定时提交
+# 定时推送
 
-**一条 job：每天 06:00，agent 跑。** 它读 `git diff` → 写 `.commit-msg`（一句话 + 分条）→ 调下面的脚本提交推送。
+**只有一条 job：每天 06:00，纯脚本，不经过模型，不花钱。**
 
-**为什么必须是 agent 而不是脚本**：提交按天聚合，一次里可能同时有增、改、归档，只有看过 diff 才写得出这句话。脚本拼不出来。
+- **它只 push，不 commit** —— commit 归 `life-save`（写的时候才知道「为什么」）；
+- 没有本地领先 → 静默；没有远端 → 静默；push 失败 → 非 0 退出 + 失败直达用户。
 
-**不设兜底 job。** agent 失败就那天不提，第二天连着一块提 —— 消息仍然据实描述 diff，所以历史不会错，只是粒度变粗。
-
-脚本放 `~/.hermes/scripts/life_auto_commit.sh`：
+脚本 `~/.hermes/scripts/life_push.sh`：
 
 ```bash
 #!/usr/bin/env bash
-# life 自动提交 + 推送：版本管理唯一的入口。
-# life-save 只写盘、只预备消息（.commit-msg），不提交。
-# 消息格式：第一行一句话，其后分条 —— 让 git log 直接可当历史读。
-# 无改动 = 静默；失败 = 非 0 退出（让 cron 报警，而不是静默烂掉）。
 set -u
 ROOT="${LIFE_ROOT:-$HOME/life}"
 [ -d "$ROOT/.git" ] || exit 0
-
-gc() { git -C "$ROOT" -c user.name=life -c user.email=life@localhost -c core.quotepath=false "$@"; }
-
-# 1. 暂存；无改动就静默（顺手清掉可能过期的待提交消息）
-gc add -A
-if gc diff --cached --quiet; then
-  rm -f "$ROOT/.commit-msg"
-  exit 0
-fi
-
-# 2. 取消息：life-save 预备的 .commit-msg，缺省时自动生成一句话
-MSG="$ROOT/.commit-msg"
-if [ -s "$MSG" ]; then
-  subject=$(head -n 1 "$MSG" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
-  body=$(tail -n +2 "$MSG")
-else
-  n=$(gc diff --cached --name-only | wc -l | tr -d ' ')
-  subject="改动 ${n} 个文件"
-  body="- （定时器自动生成，无人工说明）"
-fi
-
-# 3. 正文永远带上文件清单（分条）
-files=$(gc diff --cached --name-only | sed 's/^/- 文件：/')
-commit_body=$(printf '%s\n%s\n' "$body" "$files" | sed '/^[[:space:]]*$/d')
-
-if ! gc commit -q -m "$subject" -m "$commit_body"; then
-  echo "[life] commit 失败：$subject"
-  exit 1
-fi
-rm -f "$MSG"
-echo "[life] commit: $subject"
-
-# 4. 有远端就推（本地领先也推，兜住上次推送失败）
-if gc remote get-url origin >/dev/null 2>&1; then
-  if ! out=$(gc push -q origin HEAD 2>&1); then
-    echo "[life] push 失败：$out"
-    exit 1
-  fi
-fi
-
-exit 0
+git -C "$ROOT" remote get-url origin >/dev/null 2>&1 || exit 0
+out=$(git -C "$ROOT" -c user.name=life -c user.email=life@localhost \
+        -c core.quotepath=false push -q origin HEAD 2>&1) || {
+  echo "[life] push 失败：$out"; exit 1; }
+```
 
 注册：
 
 ```bash
-hermes cron create "0 6 * * *" "<prompt，见下>" --name "life 提交" \
-  --deliver local --failure-deliver origin
+hermes cron create "0 6 * * *" --name "life 推送" --no-agent \
+  --script life_push.sh --deliver local --failure-deliver origin
 ```
 
-**脚本不在 job 上挂**（不要 `--script`）：它必须由 agent 在看完 diff、写完消息之后自己调；挂上去会变成脚本先提交、agent 再描述，顺序就反了。
-
-06:00 那条的 prompt 要点（**照抄，别自由发挥**）：
-
-```text
-1. 在 ~/life 执行 git status --short 与 git diff，看今天的实际改动。
-2. 没有改动就只回复「无改动」。
-3. 有改动则写 ~/life/.commit-msg：第一行一句话说清这一批改了什么（不写前缀、不写日期）；
-   其后分条，每条以动词开头（改写/新增/归档/删除），一条一件事；只描述真实改动，不许臆造。
-4. 执行 bash ~/.hermes/scripts/life_auto_commit.sh，回复它的输出。
-禁止：改 ~/life 下任何 .md；自己 git commit / git push（必须走脚本）；
-消息里出现 update、整理这类无信息量的词。
-```
-
-**成本**：每天一次模型调用（一轮）。无改动时 agent 只回一句「无改动」，脚本静默。
+- `--no-agent`：只是推一下，没必要叫模型；
+- `--deliver local`：正常不打扰；
+- `--failure-deliver origin`：**push 失败必须让人知道** —— 否则它每天静默失败，你以为在备份；
+- **cron 挂在注册它时的那个 profile 下**。换 profile / 新开 profile 时这条不会跟着走，重跑本 skill 补齐。
 
 # 不负责
 
