@@ -5,6 +5,8 @@ description: 仅限用户显式调用，禁止模型主动调用。装配一生�
 disable-model-invocation: true
 ---
 
+> **归档（2026-11-10）**：已由 `~/memo` + `memo-load` / `memo-save` 替代。树封存在 `~/life-archive-2026-11-10`，归档理由见该目录 `_归档说明.md`。
+
 # Life Init
 
 **仅限用户显式调用，禁止模型主动调用。** 它建目录、init 仓库、注册定时任务 —— 都是「一次装配」的动作，不该由模型在任务中途顺手触发。
