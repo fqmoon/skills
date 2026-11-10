@@ -5,7 +5,7 @@ description: 仅限用户显式调用，禁止模型主动调用。装配一生�
 disable-model-invocation: true
 ---
 
-> **归档（2026-11-10）**：已由 `~/memo` + `memo-load` / `memo-save` 替代。树封存在 `~/life-archive-2026-11-10`，归档理由见该目录 `_归档说明.md`。
+> **归档（2026-11-10）**：已停用，由 `memo-load` / `memo-save` 替代。
 
 # Life Init
 
