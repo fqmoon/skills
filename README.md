@@ -77,8 +77,6 @@ Actions 是针对当前问题执行的分析、转换、校正或状态同步动
 | **memo-load** | 读取（只读）：检查树状态（入口对账 / 墓碑 / 臃肿 / 孤儿）+ 检索相关结论；唯一写入是 `hits.md` 的一行装载痕迹。 |
 | **memo-save** | 唯一写者：提炼 → 查现状（调 `memo-load`）→ 归类 → 并进子文档 → 同步入口。树不存在时由它建。 |
 
-`life` / `life-load` / `life-save` / `life-init` 已归档（见 `archive/`）：那套「第二大脑」把「放哪儿」做成了「准不准进」，配置、补丁、基准这类结论被赶了出去；规则涨到 2.3 倍，而主题文件逐字未变。
-
 ## Installation
 
 ```bash
@@ -88,5 +86,7 @@ npx skills add fqmoon/skills -g
 ## Archive
 
 `archive/` 保存已经停止使用、被替代或不再适合当前设计方向的旧 Skills。
+
+目前包含：`assumption-finder`、`checkpoint`、`dispatch`、`forget`、`fork-subagent`、`integration-review`、`ownership`、`qt`，以及 `life` / `life-load` / `life-save` / `life-init`。
 
 这些内容保留作为实验和设计演化记录，但不属于当前推荐使用的 Skill 集合。
