@@ -4,8 +4,6 @@ version: 2
 description: 在任务收尾时，从本次会话中提炼值得长期留下的结论，归类并进 memo 资料树，同步入口索引；资料树不存在时由本 Skill 创建。在任务完成、阶段交付或用户表示告一段落时主动调用，也可由用户手动调用 /memo-save。只保留当前有效结论，不留事件记录。
 ---
 
-> **归档（2026-11-08）：由 `life` 上位替代** —— `life-init` / `life-load` / `life-save`。资料树迁至 `~/life`（`LIFE_ROOT`）。
-
 
 # Memo Save
 
