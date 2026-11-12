@@ -56,8 +56,17 @@ git -C ~/memo add -A && git -C ~/memo commit -m "<文件>: <改了什么，一�
 
 ```bash
 mkdir -p ~/memo/refer && git -C ~/memo init -q
-ln -sf ~/code/skills/skills/memo-save/scripts/guard.sh ~/memo/.git/hooks/pre-commit
+ln -sf "<本 skill 目录>/scripts/guard.sh" ~/memo/.git/hooks/pre-commit
+test -x ~/memo/.git/hooks/pre-commit || echo "✗ 钩子悬空，守卫不会生效"
 ```
+
+**钩子必须指回本 skill 自己的 `scripts/guard.sh`，不能写死安装路径。**
+
+`<本 skill 目录>` 就是 `skill_view` 返回的 `skill_dir` —— 别自己猜、别抄一条 `~/code/...` 的路径。skill 可能装在 `~/.hermes/skills/`、某个 profile 的 `skills/`、或任何自定义目录，写死一条路径，换个位置就是**悬空链接**。
+
+而悬空链接的失败方式是**静默的**：git 发现 `pre-commit` 不可执行就当它不存在，直接放行。没有报错、没有提示 —— 你会以为有兜底，其实一路裸奔。所以最后那行 `test -x` 不是装饰，是唯一能发现这件事的动作。
+
+同理，若有人设过 `git config core.hooksPath`，`~/memo/.git/hooks/` 就不是生效位置，建完顺手 `git -C ~/memo config --get core.hooksPath` 核一下（空 = 默认，正确）。
 
 **永不 push 到远端。** 这不是偏好，是前提：钩子只是兜底，历史一旦推出去就撤不回来。
 
