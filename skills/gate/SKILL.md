@@ -2,6 +2,9 @@
 name: gate
 version: 1
 description: 定义所有可接受方案都必须通过的需求、约束、边界与可观察条件；只限定解必须满足什么，不预先规定技术方案如何实现。适合在任务需要明确不可违反条件、外部语义或可接受解边界时主动调用。
+license: MIT
+metadata:
+  author: "fqmoon (https://github.com/fqmoon)"
 ---
 
 # Gate

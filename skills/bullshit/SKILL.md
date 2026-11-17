@@ -2,6 +2,9 @@
 name: bullshit
 version: 1
 description: 验证用户当前对问题、系统或概念的理解是否站得住脚；优先寻找错误前提、概念混淆、因果跳跃、遗漏边界、反例与内部矛盾。适合在关键决策依赖某个明确 mental model 时主动调用。
+license: MIT
+metadata:
+  author: "fqmoon (https://github.com/fqmoon)"
 ---
 
 # Bullshit

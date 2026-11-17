@@ -3,7 +3,9 @@ name: checkpoint
 version: 3
 description: 将会话中尚未闭环的事项，以及继续处理这些事项所依赖的决策、约束和事实，记录成文档。
 disable-model-invocation: true
+license: MIT
 metadata:
+  author: "fqmoon (https://github.com/fqmoon)"
   opencode/autoinvoke: "false"
 ---
 

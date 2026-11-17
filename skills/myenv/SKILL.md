@@ -3,6 +3,9 @@ name: myenv
 version: 1
 description: 仅限用户显式调用，禁止模型主动调用。结合用户意图、当前环境和可选环境快照，调查值得存档的软件版本与环境定制，比较差异，生成、更新或整合快照，并按授权适配或还原环境。适用于个人环境的保存、迁移、重装与维护，不限定操作系统或配置层级。
 disable-model-invocation: true
+license: MIT
+metadata:
+  author: "fqmoon (https://github.com/fqmoon)"
 ---
 
 # Myenv

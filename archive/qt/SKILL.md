@@ -2,7 +2,9 @@
 name: qt
 description: Execute only when explicitly invoked.
 disable-model-invocation: true
+license: MIT
 metadata:
+  author: "fqmoon (https://github.com/fqmoon)"
   opencode/autoinvoke: "false"
 ---
 

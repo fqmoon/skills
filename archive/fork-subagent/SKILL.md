@@ -2,6 +2,9 @@
 name: fork-subagent
 version: 1
 description: 指导 Agent 在执行已经明确的阶段时，使用能够继承当前会话上下文的 fork 型 subagent 隔离实现过程，减少主上下文污染；支持用户显式触发，也允许 Agent 在合适场景主动应用。
+license: MIT
+metadata:
+  author: "fqmoon (https://github.com/fqmoon)"
 ---
 
 # Fork Subagent

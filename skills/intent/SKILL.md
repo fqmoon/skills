@@ -2,6 +2,9 @@
 name: intent
 version: 1
 description: 提取并澄清当前任务背后的目标、设计意图、优先级、取舍与非目标；用于帮助 Agent 理解“为什么做、真正想保什么、什么更重要”，避免把临时实现方案或历史选择误当成需求。适合在需求、方案、架构或实现方向存在取舍时主动调用。
+license: MIT
+metadata:
+  author: "fqmoon (https://github.com/fqmoon)"
 ---
 
 # Intent

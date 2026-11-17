@@ -2,6 +2,9 @@
 name: debt
 version: 1
 description: 将 Debt 作为“已知但可以有意识延迟处理的问题”的认知模型；用于判断一个已发现的问题是否必须现在解决，还是可以在不阻塞主要目标的前提下暂时欠下，并在值得保留时记录到 Hardening。适合在实现、调试、测试或 Review 中主动调用。
+license: MIT
+metadata:
+  author: "fqmoon (https://github.com/fqmoon)"
 ---
 
 # Debt

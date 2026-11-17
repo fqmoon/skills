@@ -2,6 +2,9 @@
 name: concretize
 version: 5
 description: 将已经明确的需求、Intent、Gate、高层 Impl 或 Plan，结合当前 repository 的真实实现与 change surface，具体化为可直接用于后续执行的 Implementation Plan；在选择技术路线前先判断变化传播范围，必要时调用 impact 进行结构性调查，但不执行业务代码修改；将 Plan 落盘到项目。
+license: MIT
+metadata:
+  author: "fqmoon (https://github.com/fqmoon)"
 ---
 
 # Concretize

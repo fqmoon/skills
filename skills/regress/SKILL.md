@@ -2,6 +2,9 @@
 name: regress
 version: 1
 description: 在实现完成或基本完成后，从最终 Reality 盲重建其实际体现的 Intent / Gate / Impl，再由保留原始上下文的主 Agent 与原始理解进行回归比对；当实际实现复杂、影响面广、跨越多个结构边界，或执行后可能发生语义漂移时主动调用。
+license: MIT
+metadata:
+  author: "fqmoon (https://github.com/fqmoon)"
 ---
 
 # Regress

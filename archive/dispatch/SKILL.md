@@ -3,7 +3,9 @@ name: dispatch
 version: 4
 description: 将已经确定的 ownership 放入独立 Git worktree 与独立执行上下文中执行；支持在保留的 worktree 上继续 dispatch；等待全部完成后收集真实结果并自动调用 integration-review 收尾；若 review 不可调用则明确失败并报告原因，不自动集成。
 disable-model-invocation: true
+license: MIT
 metadata:
+  author: "fqmoon (https://github.com/fqmoon)"
   opencode/autoinvoke: "false"
 ---
 

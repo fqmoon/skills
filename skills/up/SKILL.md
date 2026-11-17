@@ -2,6 +2,9 @@
 name: up
 version: 1
 description: 将当前讨论提升到更高但仍足以回答问题的抽象层级。用于讨论陷入 API、函数、调用链、文件、数据结构或具体实现细节，而用户真正需要确认的是概念、职责、边界、空间、状态或组件关系时。一次性调用，不改变当前工作模式。
+license: MIT
+metadata:
+  author: "fqmoon (https://github.com/fqmoon)"
 ---
 
 # Up

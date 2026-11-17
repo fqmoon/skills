@@ -3,7 +3,9 @@ name: forget
 version: 3
 description: 生成简短、可手工编辑的交接文档，用于在新会话中续接工作，仅保留后续工作所需信息，并删除无关记忆。
 disable-model-invocation: true
+license: MIT
 metadata:
+  author: "fqmoon (https://github.com/fqmoon)"
   opencode/autoinvoke: "false"
 ---
 

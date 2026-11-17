@@ -2,6 +2,9 @@
 name: memo-load
 version: 4
 description: 检查 memo 资料树的状态，检索与当前目标相关的既有结论，并用 git diff 看上次之后树里改了什么。在开始任务、需要回顾此前积累、或写入前核查现状时调用，也可由用户手动调用 /memo-load。只读 —— 不写任何东西。装载后只用一两句说明「这条笔记改变了我什么」，不重述内容。
+license: MIT
+metadata:
+  author: "fqmoon (https://github.com/fqmoon)"
 ---
 
 

@@ -2,6 +2,9 @@
 name: evolve
 version: 1
 description: 进入持续交互式的软件演化校对模式。根据用户指定的范围或方向，主动调查项目文档、ADR、Test 与 Code，通过实际实现和行为反向发现 Intent，检查长期设计决策与行为约束的有效性，提出默认修改建议，与用户交互后维护项目长期资产并执行测试验证。适合周期性审视软件演化结果，而非单次任务的普通 Review。
+license: MIT
+metadata:
+  author: "fqmoon (https://github.com/fqmoon)"
 ---
 
 # Evolve

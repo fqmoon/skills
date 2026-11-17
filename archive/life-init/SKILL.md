@@ -3,6 +3,9 @@ name: life-init
 version: 2
 description: 仅限用户显式调用，禁止模型主动调用。装配一生项目（life）资料树：检查并补齐根目录、入口、仓库与每日定时推送。可重入，写坏/换机重跑即可。
 disable-model-invocation: true
+license: MIT
+metadata:
+  author: "fqmoon (https://github.com/fqmoon)"
 ---
 
 > **归档（2026-11-10）**：已停用，由 `memo-load` / `memo-save` 替代。

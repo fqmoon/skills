@@ -2,6 +2,9 @@
 name: require
 version: 1
 description: 进入由用户负责需求、方向与关键取舍，Agent 默认承担更多下层调查、实现判断与局部决策的 Require 模式；Agent 主动消化实现复杂性，默认只上报结论、重要影响和真正需要用户决定的问题，同时允许用户随时深入任何实现细节。适合在用户希望保持高层控制、减少实现层管理负担时显式调用。
+license: MIT
+metadata:
+  author: "fqmoon (https://github.com/fqmoon)"
 ---
 
 # Require

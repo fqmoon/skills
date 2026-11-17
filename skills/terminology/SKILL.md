@@ -2,6 +2,9 @@
 name: terminology
 version: 8
 description: 主动、自动地发现并澄清用户与 Agent 在讨论、需求、文档和代码中的术语歧义、概念混淆、误称、命名不准确与语义漂移；即使用户没有要求术语对齐，也应在发现有意义的问题时主动指出并建议更准确的术语。无需用户显式调用，建议不强制采纳。项目内默认从 docs/CONTEXT.md 读取术语，并自动跟进其中相关的本地 Markdown 术语文件链接；默认只读。不负责领域建模、ADR、设计决策或代码重命名。
+license: MIT
+metadata:
+  author: "fqmoon (https://github.com/fqmoon)"
 ---
 
 # Terminology

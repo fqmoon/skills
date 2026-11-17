@@ -2,6 +2,9 @@
 name: impact
 version: 1
 description: 基于当前 repository 调查一个拟议变化的真实影响范围，包括 change surface、数据链路、结构边界、ownership、lifecycle、contract、兼容性，以及相关 ADR、项目文档与 Test/Fixture 所体现的长期设计和行为约束；用于实施前识别传播范围及潜在语义冲突，不负责决定技术路线或维护长期资产。
+license: MIT
+metadata:
+  author: "fqmoon (https://github.com/fqmoon)"
 ---
 
 # Impact

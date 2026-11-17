@@ -2,7 +2,9 @@
 name: integration-review
 version: 2
 description: 审查多个独立 ownership 的真实实现，识别阻止它们共同进入满足 Gate 的系统的 Conflict、Gap、Overlap 与 Gate Violation；通常由 dispatch 在执行收尾时调用，也可独立调用；只输出 INTEGRATION_REVIEW.md，不执行整合或修复。
+license: MIT
 metadata:
+  author: "fqmoon (https://github.com/fqmoon)"
   opencode/autoinvoke: "false"
 ---
 

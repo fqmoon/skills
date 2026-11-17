@@ -3,7 +3,9 @@ name: ownership
 version: 1
 description: 将任务按责任边界拆成若干 ownership；只确定责任范围、主要写入边界与跨 ownership 的 contract 关系，不负责执行。
 disable-model-invocation: true
+license: MIT
 metadata:
+  author: "fqmoon (https://github.com/fqmoon)"
   opencode/autoinvoke: "false"
 ---
 

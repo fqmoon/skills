@@ -2,6 +2,9 @@
 name: progress
 version: 1
 description: 将当前执行阶段的真实进展同步到项目中的 Execution Plan；在阶段任务完成、进入或结束人工验收以及回复用户前存在未登记的阶段性进展时主动执行，也可由用户手动调用 /progress。
+license: MIT
+metadata:
+  author: "fqmoon (https://github.com/fqmoon)"
 ---
 
 # Progress

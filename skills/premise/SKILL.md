@@ -2,6 +2,9 @@
 name: premise
 version: 1
 description: 在代码审查、设计审查或复杂分析前，恢复人与 Agent 完成当前判断所需的最小共同前提。用于 Agent 已掌握大量近期实现细节，而用户可能不记得当前系统、设计决定或近期变化，导致双方推理起点不一致时。一次性调用，不负责 Review 本身。
+license: MIT
+metadata:
+  author: "fqmoon (https://github.com/fqmoon)"
 ---
 
 # Premise

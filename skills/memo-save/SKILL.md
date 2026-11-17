@@ -2,6 +2,9 @@
 name: memo-save
 version: 4
 description: 在阶段边界或收尾时，把这段工作的结论写进 memo 资料树并自动 commit。这棵树是 agent 自己的缓存 —— 读者是 agent，不是人；判据是「会改变我下次的动作」，不是「值得人读」。全自动写入，不列清单、不问用户；只有凭据与私事由 pre-commit 钩子硬拦。资料树或 git 仓库不存在时由本 Skill 创建。
+license: MIT
+metadata:
+  author: "fqmoon (https://github.com/fqmoon)"
 ---
 
 

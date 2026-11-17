@@ -2,6 +2,9 @@
 name: life-load
 version: 2
 description: 检查 life（一生项目）的状态，并检索与当前目标相关的既有结论；在开始一项任务、需要回顾此前积累、或准备写入前核查现状时调用，也可由用户手动调用 /life-load。只读 —— 不改任何资料内容，只在 hits.md 记一行装载痕迹。
+license: MIT
+metadata:
+  author: "fqmoon (https://github.com/fqmoon)"
 ---
 
 > **归档（2026-11-10）**：已停用，由 `memo-load` / `memo-save` 替代。

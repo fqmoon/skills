@@ -2,7 +2,9 @@
 name: assumption-finder
 description: 识别问题或观点中会实质影响结论的隐藏前提。
 disable-model-invocation: true
+license: MIT
 metadata:
+  author: "fqmoon (https://github.com/fqmoon)"
   opencode/autoinvoke: "false"
 ---
 

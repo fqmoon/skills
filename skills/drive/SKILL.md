@@ -2,6 +2,9 @@
 name: drive
 version: 3
 description: 进入由用户持续掌舵、Agent 协作推进的 Drive 模式；使用 Intent / Gate / Impl / Debt 四个认知坐标理解非机械任务，帮助调查、判断、澄清和补足实现细节，同时允许非阻塞问题有意识地延迟，而不把这些认知模型变成固定 Workflow。适合在会话开头由用户显式调用。
+license: MIT
+metadata:
+  author: "fqmoon (https://github.com/fqmoon)"
 ---
 
 # Drive

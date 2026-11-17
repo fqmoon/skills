@@ -2,6 +2,9 @@
 name: impl
 version: 1
 description: 将 Implementation 作为当前实现手段的认知模型；用于区分技术选择、现有代码、历史 Plan 与真正的 Intent / Gate，避免把可替换的实现方案误当成永久需求。适合在讨论、设计、实现或 Review 中需要判断“这是手段还是约束”时主动调用。
+license: MIT
+metadata:
+  author: "fqmoon (https://github.com/fqmoon)"
 ---
 
 # Impl
